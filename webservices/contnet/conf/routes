@@ -1,0 +1,16 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET     /                                       App.Index
+OPTIONS /*                                      Cors.Handle
+
+# ContNet service actions
+GET     /content                                App.GetContent
+GET     /description                            App.GetDescription
+POST    /content                                App.PostContent
+POST    /content/:contentID/read                App.PostContentRead
+
+
+# Catch all
+*       /*                                      App.NotFound
