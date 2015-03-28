@@ -4,15 +4,13 @@ import "sync"
 
 type Network struct {
 	sync.RWMutex
-	config         *NetworkConfig
 	contentStorage *ContentStorage
 	profileStorage *ProfileStorage
 }
 type NetworkFactory struct{}
 
-func (factory NetworkFactory) New(config *NetworkConfig) *Network {
+func (factory NetworkFactory) New() *Network {
 	return &Network{
-		config:         config.Clone(),
 		contentStorage: Object.ContentStorage.New(),
 		profileStorage: Object.ProfileStorage.New(),
 	}

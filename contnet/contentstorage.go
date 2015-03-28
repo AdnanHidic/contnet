@@ -12,7 +12,7 @@ type ContentStorageFactory struct{}
 func (factory ContentStorageFactory) New() *ContentStorage {
 	return &ContentStorage{
 		contents: map[int64]*Content{},
-		index:    map[Topic]*Content{},
+		index:    map[Topic]Contents{},
 	}
 }
 
@@ -86,13 +86,13 @@ func (storage *ContentStorage) addContentToIndex(topics Topics, content *Content
 	// foreach topic
 	for i := 0; i < len(topics); i++ {
 		// try to get indexed topic contents
-		contents, isTopicRegistered := storage.index[topics[i]]
+		contents, isTopicRegistered := storage.index[*topics[i]]
 		// if no topic contents indexed
 		if !isTopicRegistered {
 			// create topic contents
 			contents = Contents{}
 			// save
-			storage.index[topics[i]] = contents
+			storage.index[*topics[i]] = contents
 		}
 		// finally, add content to topic contents
 		contents.Add(content)
@@ -103,7 +103,7 @@ func (storage *ContentStorage) removeContentFromIndex(topics Topics, content *Co
 	// foreach topic
 	for i := 0; i < len(topics); i++ {
 		// try to get indexed topic contents
-		contents, isTopicRegistered := storage.index[topics[i]]
+		contents, isTopicRegistered := storage.index[*topics[i]]
 		// if no topic contents indexed
 		if isTopicRegistered {
 			// finally, remove content from topic contents

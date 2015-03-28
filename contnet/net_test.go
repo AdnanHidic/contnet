@@ -14,14 +14,7 @@ var (
 )
 
 func TestNetworkCreate(t *testing.T) {
-	netConfig := Object.NetworkConfig.New(
-		backupPath,
-		itemsPerPage,
-		gravity,
-		novelty,
-		autosavePeriod,
-	)
-	net := Object.Network.New(netConfig)
+	net := Object.Network.New()
 
 	description := net.Describe()
 	if description.Contents != 0 {

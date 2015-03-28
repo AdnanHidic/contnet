@@ -6,7 +6,6 @@ func (contents Contents) Add(content *Content) {
 	// magic
 }
 
-
-func (contents Contents) Remove(content *Content)  {
+func (contents Contents) Remove(content *Content) {
 	// magic
 }
