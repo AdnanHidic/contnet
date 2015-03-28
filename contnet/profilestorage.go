@@ -38,3 +38,24 @@ func (storage *ProfileStorage) Delete(id int64) {
 
 	delete(storage.profiles, id)
 }
+
+func (storage *ProfileStorage) SaveAction(action Action) {
+	storage.RLock()
+	defer storage.RUnlock()
+
+	var (
+		profile       *Profile
+		profileExists bool
+	)
+	// get profile, if any
+	profile, profileExists = storage.profiles[action.ProfileID]
+
+	// if profile does not exist, create a new one and save it
+	if !profileExists {
+		profile = Object.Profile.New(action.ProfileID, TopicInterests{})
+		storage.Save(profile)
+	}
+
+	// update profile with this action
+	profile.SaveAction(action)
+}

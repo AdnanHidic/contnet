@@ -10,15 +10,15 @@ const (
 )
 
 type Action struct {
-	IdentityID int64
-	Type       ActionType
-	Arguments  map[string]string
+	ProfileID int64
+	Type      ActionType
+	Arguments map[string]string
 }
 
-func NewAction(identityID int64, actionType ActionType, arguments map[string]string) *Action {
+func NewAction(profileID int64, actionType ActionType, arguments map[string]string) *Action {
 	return &Action{
-		IdentityID: identityID,
-		Type:       actionType,
-		Arguments:  arguments,
+		ProfileID: profileID,
+		Type:      actionType,
+		Arguments: arguments,
 	}
 }

@@ -8,6 +8,8 @@ var Object = struct {
 	TopicInterest  TopicInterestFactory
 	Profile        ProfileFactory
 	ProfileStorage ProfileStorageFactory
+	NetworkConfig  NetworkConfigFactory
+	Network        NetworkFactory
 }{
 	Topic:          TopicFactory{},
 	Content:        ContentFactory{},
@@ -15,4 +17,6 @@ var Object = struct {
 	TopicInterest:  TopicInterestFactory{},
 	Profile:        ProfileFactory{},
 	ProfileStorage: ProfileStorageFactory{},
+	NetworkConfig:  NetworkConfigFactory{},
+	Network:        NetworkFactory{},
 }

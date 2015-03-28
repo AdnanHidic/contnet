@@ -19,7 +19,7 @@ func TestPackUnpack(t *testing.T) {
 
 		topic := Object.Topic.New(keyword1, keyword2)
 
-		keyword1FromTopic, keyword2FromTopic := topic.ToKeywords()
+		keyword1FromTopic, keyword2FromTopic := topic.GetKeywords()
 
 		if keyword1 != keyword1FromTopic {
 			t.Errorf("Expected %d but got %d as keyword 1", keyword1, keyword1FromTopic)
