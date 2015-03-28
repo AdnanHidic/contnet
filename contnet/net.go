@@ -4,25 +4,17 @@ import "sync"
 
 type Network struct {
 	sync.RWMutex
-	Config         *NetworkConfig
-	ContentStorage *ContentStorage
-	ProfileStorage *ProfileStorage
+	config         *NetworkConfig
+	contentStorage *ContentStorage
+	profileStorage *ProfileStorage
 }
 type NetworkFactory struct{}
 
 func (factory NetworkFactory) New(config *NetworkConfig) *Network {
 	return &Network{
-		Config:         config.Clone(),
-		ContentStorage: Object.ContentStorage.New(),
-		ProfileStorage: Object.ProfileStorage.New(),
-	}
-}
-
-func NewNetwork(config *NetworkConfig) *Network {
-	return &Network{
-		Config:         config,
-		ContentStorage: Object.ContentStorage.New(),
-		ProfileStorage: Object.ProfileStorage.New(),
+		config:         config.Clone(),
+		contentStorage: Object.ContentStorage.New(),
+		profileStorage: Object.ProfileStorage.New(),
 	}
 }
 
@@ -30,13 +22,38 @@ func (net *Network) Init() error {
 	return Errors.NotImplemented
 }
 
-func (net *Network) SaveContent(c *Content) error {
-	return Errors.NotImplemented
+// Attempts to update network object with content specified.
+// If content did not exist, it is added to the network.
+// If content did exist, it is updated.
+func (net *Network) SaveContent(content *Content) error {
+	contentInStorage := net.contentStorage.Get(content.ID)
+	// check if content object already exists in storage
+	switch contentInStorage {
+	case nil:
+		// if content does not exist in storage
+		return net.saveContent(content)
+	default:
+		// if content does exist in storage
+		return net.updateContent(contentInStorage, content)
+	}
 }
 
+// Saves content specified to content storage.
+func (net *Network) saveContent(content *Content) error {
+	net.contentStorage.Save(content)
+	return nil
+}
+
+// Updates content specified in content storage.
+func (net *Network) updateContent(old, new *Content) error {
+	net.contentStorage.Save(new)
+	return nil
+}
+
+// Attempts to update network object with action for profile specified.
 func (net *Network) SaveAction(action *Action) error {
 	// get related content's copy, if any
-	relatedContent := net.ContentStorage.Get(action.ContentID)
+	relatedContent := net.contentStorage.Get(action.ContentID)
 
 	// if content does not exist
 	if relatedContent == nil {
@@ -47,7 +64,7 @@ func (net *Network) SaveAction(action *Action) error {
 	action.Content = relatedContent
 
 	// save action to profile
-	net.ProfileStorage.SaveAction(action)
+	net.profileStorage.SaveAction(action)
 
 	// everything is okay
 	return nil
@@ -55,4 +72,11 @@ func (net *Network) SaveAction(action *Action) error {
 
 func (net *Network) Select(consumerID, page int8) ([]*Content, error) {
 	return nil, Errors.NotImplemented
+}
+
+func (net *Network) Describe() *NetworkDescription {
+    return &NetworkDescription{
+        Contents: len(net.contentStorage.contents),
+        Profiles: len(net.profileStorage.profiles),
+    }
 }

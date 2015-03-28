@@ -13,17 +13,17 @@ type Keywords []Keyword
 // Topics: AB, AC, BC
 func (keywords Keywords) GetTopics() Topics {
 	// instantiate return object
-    topics := Topics{}
-    // iterate through keywords
+	topics := Topics{}
+	// iterate through keywords
 	for i := 0; i < len(keywords); i++ {
 		for j := i + 1; j < len(keywords); j++ {
-            // instantiate topic
+			// instantiate topic
 			topic := Object.Topic.New(keywords[i], keywords[j])
-            // add it to the return object
+			// add it to the return object
 			topics = append(topics, topic)
 		}
 	}
-    // return generated topics
+	// return generated topics
 	return topics
 }
 
