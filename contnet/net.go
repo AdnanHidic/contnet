@@ -18,7 +18,11 @@ func (factory NetworkFactory) New(config *NetworkConfig) *Network {
 	}
 }
 
-func (net *Network) Init() error {
+func (net *Network) Save() error {
+	return Errors.NotImplemented
+}
+
+func (net *Network) Load() error {
 	return Errors.NotImplemented
 }
 
@@ -31,7 +35,7 @@ func (net *Network) SaveContent(content *Content) error {
 	switch contentInStorage {
 	case nil:
 		// if content does not exist in storage
-		return net.saveContent(content)
+		return net.createContent(content)
 	default:
 		// if content does exist in storage
 		return net.updateContent(contentInStorage, content)
@@ -39,14 +43,14 @@ func (net *Network) SaveContent(content *Content) error {
 }
 
 // Saves content specified to content storage.
-func (net *Network) saveContent(content *Content) error {
-	net.contentStorage.Save(content)
+func (net *Network) createContent(content *Content) error {
+	net.contentStorage.Create(content)
 	return nil
 }
 
 // Updates content specified in content storage.
 func (net *Network) updateContent(old, new *Content) error {
-	net.contentStorage.Save(new)
+	net.contentStorage.Update(old, new)
 	return nil
 }
 
@@ -75,8 +79,8 @@ func (net *Network) Select(consumerID, page int8) ([]*Content, error) {
 }
 
 func (net *Network) Describe() *NetworkDescription {
-    return &NetworkDescription{
-        Contents: len(net.contentStorage.contents),
-        Profiles: len(net.profileStorage.profiles),
-    }
+	return &NetworkDescription{
+		Contents: len(net.contentStorage.contents),
+		Profiles: len(net.profileStorage.profiles),
+	}
 }
