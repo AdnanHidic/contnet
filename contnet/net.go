@@ -33,23 +33,13 @@ func (net *Network) SaveContent(content *Content) error {
 	switch contentInStorage {
 	case nil:
 		// if content does not exist in storage
-		return net.createContent(content)
+		net.contentStorage.Create(content)
+		return nil
 	default:
 		// if content does exist in storage
-		return net.updateContent(contentInStorage, content)
+		net.contentStorage.Update(contentInStorage, content)
+		return nil
 	}
-}
-
-// Saves content specified to content storage.
-func (net *Network) createContent(content *Content) error {
-	net.contentStorage.Create(content)
-	return nil
-}
-
-// Updates content specified in content storage.
-func (net *Network) updateContent(old, new *Content) error {
-	net.contentStorage.Update(old, new)
-	return nil
 }
 
 // Attempts to update network object with action for profile specified.
@@ -72,8 +62,15 @@ func (net *Network) SaveAction(action *Action) error {
 	return nil
 }
 
-func (net *Network) Select(consumerID, page int8) ([]*Content, error) {
-	return nil, Errors.NotImplemented
+func (net *Network) Select(profileID int64, page uint8) ([]*Content, error) {
+	profile := net.profileStorage.Get(profileID)
+    // if no profile found, return error
+    if profile == nil {
+        return nil, Errors.ProfileNotFound
+    }
+    // select content for profile specified
+    content := net.contentStorage.Select(profile, page)
+    return content, nil
 }
 
 func (net *Network) Describe() *NetworkDescription {

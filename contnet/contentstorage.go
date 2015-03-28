@@ -82,6 +82,13 @@ func (storage *ContentStorage) Delete(id int64) {
 
 }
 
+func (storage *ContentStorage) Select(profile *Profile, page uint8) []*Content {
+    storage.RLock()
+    defer storage.RUnlock()
+
+    return nil
+}
+
 func (storage *ContentStorage) addContentToIndex(topics Topics, content *Content) {
 	// foreach topic
 	for i := 0; i < len(topics); i++ {
