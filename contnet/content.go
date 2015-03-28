@@ -8,6 +8,25 @@ type Keyword uint32
 // Keywords is a type representing a slice of keywords.
 type Keywords []Keyword
 
+// Gets all topics based on keywords, e.g.
+// Keywords: A, B, C
+// Topics: AB, AC, BC
+func (keywords Keywords) GetTopics() Topics {
+	// instantiate return object
+    topics := Topics{}
+    // iterate through keywords
+	for i := 0; i < len(keywords); i++ {
+		for j := i + 1; j < len(keywords); j++ {
+            // instantiate topic
+			topic := Object.Topic.New(keywords[i], keywords[j])
+            // add it to the return object
+			topics = append(topics, topic)
+		}
+	}
+    // return generated topics
+	return topics
+}
+
 func (keywords Keywords) Clone() Keywords {
 	out := []Keyword{}
 	for i := 0; i < len(keywords); i++ {

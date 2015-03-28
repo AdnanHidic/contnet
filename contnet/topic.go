@@ -4,6 +4,8 @@ package contnet
 type Topic uint64
 type TopicFactory struct{}
 
+type Topics []*Topic
+
 // Returns keywords from topic object. Keywords are always ordered in ASC.
 func (t Topic) GetKeywords() (Keyword, Keyword) {
 	k1 := t & 0xFFFFFFFF
