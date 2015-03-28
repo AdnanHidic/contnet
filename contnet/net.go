@@ -43,13 +43,13 @@ func (net *Network) SaveAction(action *Action) error {
 		return Errors.ContentNotFound
 	}
 
-    // injected related content to action
-    action.Content = relatedContent
+	// injected related content to action
+	action.Content = relatedContent
 
-    // save action to profile
+	// save action to profile
 	net.ProfileStorage.SaveAction(action)
 
-    // everything is okay
+	// everything is okay
 	return nil
 }
 
