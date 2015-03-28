@@ -10,6 +10,8 @@ var Object = struct {
 	ProfileStorage ProfileStorageFactory
 	NetworkConfig  NetworkConfigFactory
 	Network        NetworkFactory
+	Action         ActionFactory
+	ActionArgument ActionArgumentFactory
 }{
 	Topic:          TopicFactory{},
 	Content:        ContentFactory{},
@@ -19,4 +21,6 @@ var Object = struct {
 	ProfileStorage: ProfileStorageFactory{},
 	NetworkConfig:  NetworkConfigFactory{},
 	Network:        NetworkFactory{},
+	Action:         ActionFactory{},
+	ActionArgument: ActionArgumentFactory{},
 }

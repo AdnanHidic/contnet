@@ -3,7 +3,9 @@ package contnet
 import "errors"
 
 var Errors = struct {
-	NotImplemented error
+	NotImplemented  error
+	ContentNotFound error
 }{
-	NotImplemented: errors.New("Not implemented."),
+	NotImplemented:  errors.New("Not implemented."),
+	ContentNotFound: errors.New("Content not found in content storage."),
 }

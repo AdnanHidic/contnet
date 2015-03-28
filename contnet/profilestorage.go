@@ -39,7 +39,7 @@ func (storage *ProfileStorage) Delete(id int64) {
 	delete(storage.profiles, id)
 }
 
-func (storage *ProfileStorage) SaveAction(action Action) {
+func (storage *ProfileStorage) SaveAction(action *Action) {
 	storage.RLock()
 	defer storage.RUnlock()
 

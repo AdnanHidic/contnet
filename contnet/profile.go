@@ -61,7 +61,7 @@ func (profile *Profile) Clone() *Profile {
 }
 
 // Thread-safe profile object update with action
-func (profile *Profile) SaveAction(action Action) {
+func (profile *Profile) SaveAction(action *Action) {
 	profile.Lock()
 	defer profile.Unlock()
 
