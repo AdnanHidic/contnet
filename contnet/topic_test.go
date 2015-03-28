@@ -17,7 +17,7 @@ func TestPackUnpack(t *testing.T) {
 		keyword1 := keywordPairs[i][0]
 		keyword2 := keywordPairs[i][1]
 
-		topic := TopicFactory{}.FromKeywords(keyword1, keyword2)
+		topic := Object.Topic.New(keyword1, keyword2)
 
 		keyword1FromTopic, keyword2FromTopic := topic.ToKeywords()
 

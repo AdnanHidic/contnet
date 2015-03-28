@@ -24,14 +24,14 @@ type Network struct {
 	sync.RWMutex
 	Config         *NetworkConfig
 	ContentStorage *ContentStorage
-    ProfileStorage *ProfileStorage
+	ProfileStorage *ProfileStorage
 }
 
 func NewNetwork(config *NetworkConfig) *Network {
 	return &Network{
-		Config: config,
-        ContentStorage: NewContentStorage(),
-        ProfileStorage: NewProfileStorage(),
+		Config:         config,
+		ContentStorage: Object.ContentStorage.New(),
+		ProfileStorage: Object.ProfileStorage.New(),
 	}
 }
 

@@ -1,7 +1,6 @@
 package contnet
 
 type Topic uint64
-
 type TopicFactory struct{}
 
 func (t Topic) ToKeywords() (Keyword, Keyword) {
@@ -11,7 +10,7 @@ func (t Topic) ToKeywords() (Keyword, Keyword) {
 	return Keyword(k1), Keyword(k2)
 }
 
-func (factory TopicFactory) FromKeywords(k1, k2 Keyword) Topic {
+func (factory TopicFactory) New(k1, k2 Keyword) *Topic {
 	if k1 > k2 {
 		_swap(&k1, &k2)
 	}
@@ -19,8 +18,8 @@ func (factory TopicFactory) FromKeywords(k1, k2 Keyword) Topic {
 	x := (int64(k1)) << 0
 	y := (int64(k2)) << 32
 
-	ans := x | y
-	return Topic(ans)
+	ans := Topic(x | y)
+	return &ans
 }
 
 func _swap(k1, k2 *Keyword) {
