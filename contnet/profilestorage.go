@@ -2,19 +2,19 @@ package contnet
 
 import "sync"
 
-type ProfileStorage struct {
+type ProfileStore struct {
 	sync.RWMutex
 	profiles map[int64]*Profile
 }
-type ProfileStorageFactory struct{}
+type ProfileStoreFactory struct{}
 
-func (factory ProfileStorageFactory) New() *ProfileStorage {
-	return &ProfileStorage{
+func (factory ProfileStoreFactory) New() *ProfileStore {
+	return &ProfileStore{
 		profiles: map[int64]*Profile{},
 	}
 }
 
-func (storage *ProfileStorage) Get(id int64) *Profile {
+func (storage *ProfileStore) Get(id int64) *Profile {
 	storage.RLock()
 	defer storage.RUnlock()
 
@@ -25,21 +25,21 @@ func (storage *ProfileStorage) Get(id int64) *Profile {
 	}
 }
 
-func (storage *ProfileStorage) Save(profile *Profile) {
+func (storage *ProfileStore) Save(profile *Profile) {
 	storage.Lock()
 	defer storage.Unlock()
 
 	storage.profiles[profile.ID] = profile.Clone()
 }
 
-func (storage *ProfileStorage) Delete(id int64) {
+func (storage *ProfileStore) Delete(id int64) {
 	storage.Lock()
 	defer storage.Unlock()
 
 	delete(storage.profiles, id)
 }
 
-func (storage *ProfileStorage) SaveAction(action *Action) {
+func (storage *ProfileStore) SaveAction(action *Action) {
 	storage.RLock()
 	defer storage.RUnlock()
 

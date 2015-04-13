@@ -2,21 +2,21 @@ package contnet
 
 import "sync"
 
-type ContentStorage struct {
+type ContentStore struct {
 	sync.RWMutex
 	contents map[int64]*Content
 	index    map[Topic]Contents
 }
-type ContentStorageFactory struct{}
+type ContentStoreFactory struct{}
 
-func (factory ContentStorageFactory) New() *ContentStorage {
-	return &ContentStorage{
+func (factory ContentStoreFactory) New() *ContentStore {
+	return &ContentStore{
 		contents: map[int64]*Content{},
 		index:    map[Topic]Contents{},
 	}
 }
 
-func (storage *ContentStorage) Get(id int64) *Content {
+func (storage *ContentStore) Get(id int64) *Content {
 	storage.RLock()
 	defer storage.RUnlock()
 
@@ -27,7 +27,7 @@ func (storage *ContentStorage) Get(id int64) *Content {
 	}
 }
 
-func (storage *ContentStorage) Create(content *Content) {
+func (storage *ContentStore) Create(content *Content) {
 	storage.Lock()
 	defer storage.Unlock()
 
@@ -41,7 +41,7 @@ func (storage *ContentStorage) Create(content *Content) {
 	storage.addContentToIndex(topics, content)
 }
 
-func (storage *ContentStorage) Update(old, new *Content) {
+func (storage *ContentStore) Update(old, new *Content) {
 	storage.Lock()
 	defer storage.Unlock()
 
@@ -60,7 +60,7 @@ func (storage *ContentStorage) Update(old, new *Content) {
 	storage.addContentToIndex(newTopics, new)
 }
 
-func (storage *ContentStorage) Delete(id int64) {
+func (storage *ContentStore) Delete(id int64) {
 	storage.Lock()
 	defer storage.Unlock()
 
@@ -82,14 +82,14 @@ func (storage *ContentStorage) Delete(id int64) {
 
 }
 
-func (storage *ContentStorage) Select(profile *Profile, page uint8) []*Content {
+func (storage *ContentStore) Select(profile *Profile, page uint8) []*Content {
     storage.RLock()
     defer storage.RUnlock()
 
     return nil
 }
 
-func (storage *ContentStorage) addContentToIndex(topics Topics, content *Content) {
+func (storage *ContentStore) addContentToIndex(topics Topics, content *Content) {
 	// foreach topic
 	for i := 0; i < len(topics); i++ {
 		// try to get indexed topic contents
@@ -106,7 +106,7 @@ func (storage *ContentStorage) addContentToIndex(topics Topics, content *Content
 	}
 }
 
-func (storage *ContentStorage) removeContentFromIndex(topics Topics, content *Content) {
+func (storage *ContentStore) removeContentFromIndex(topics Topics, content *Content) {
 	// foreach topic
 	for i := 0; i < len(topics); i++ {
 		// try to get indexed topic contents
