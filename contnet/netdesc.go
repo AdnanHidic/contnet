@@ -1,6 +1,6 @@
 package contnet
 
-type NetworkDescription struct {
+type NetDescription struct {
 	Contents int
 	Profiles int
 }

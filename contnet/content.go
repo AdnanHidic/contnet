@@ -39,21 +39,21 @@ type ID int64
 
 // Content object contains information pertinent to content being indexed by ContNet.
 type Content struct {
-	ID         ID       // unique content ID
-	Keywords   Keywords // slice of keywords for content
+	ID         ID
+	Keywords   Keywords
 	CreatedAt  time.Time
-	Confidence float64 // confidence is an estimate about how precisely were keywords determined
-	Popularity float64 // Popularity is an estimate about how popular the content is.
+	Quality    float64
+	Popularity float64
 }
 type ContentFactory struct{}
 
 // Creates new content object
-func (factory ContentFactory) New(id ID, keywords Keywords, createdAt time.Time, confidence float64, popularity float64) *Content {
+func (factory ContentFactory) New(id ID, keywords Keywords, createdAt time.Time, quality, popularity float64) *Content {
 	return &Content{
 		ID:         id,
 		Keywords:   keywords.Clone(),
 		CreatedAt:  createdAt,
-		Confidence: confidence,
+		Quality:    quality,
 		Popularity: popularity,
 	}
 }
@@ -64,7 +64,7 @@ func (content *Content) Clone() *Content {
 		content.ID,
 		content.Keywords,
 		content.CreatedAt,
-		content.Confidence,
+		content.Quality,
 		content.Popularity,
 	)
 }

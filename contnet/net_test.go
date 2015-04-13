@@ -13,8 +13,8 @@ var (
 	autosavePeriod, _ = time.ParseDuration("10s")
 )
 
-func TestNetworkCreate(t *testing.T) {
-	net := Object.Network.New()
+func TestNetCreate(t *testing.T) {
+	net := Object.Net.New()
 
 	description := net.Describe()
 	if description.Contents != 0 {

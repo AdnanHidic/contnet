@@ -9,7 +9,7 @@ var Object = struct {
 	Profile        ProfileFactory
 	ProfileStore   ProfileStoreFactory
 	Index          IndexFactory
-	Network        NetworkFactory
+	Net            NetFactory
 	Action         ActionFactory
 	ActionArgument ActionArgumentFactory
 }{
@@ -20,7 +20,7 @@ var Object = struct {
 	Profile:        ProfileFactory{},
 	ProfileStore:   ProfileStoreFactory{},
 	Index:          IndexFactory{},
-	Network:        NetworkFactory{},
+	Net:            NetFactory{},
 	Action:         ActionFactory{},
 	ActionArgument: ActionArgumentFactory{},
 }

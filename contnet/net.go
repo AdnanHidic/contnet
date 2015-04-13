@@ -5,43 +5,43 @@ import (
 	"sync"
 )
 
-type Network struct {
+type Net struct {
 	sync.RWMutex
 	bus          *EventBus.EventBus
 	index        *Index
 	contentStore *ContentStore
 	profileStore *ProfileStore
 }
-type NetworkFactory struct{}
+type NetFactory struct{}
 
-func (factory NetworkFactory) New() *Network {
+func (factory NetFactory) New() *Net {
 	bus := EventBus.New()
 	contentStore := Object.ContentStore.New(bus)
-	return &Network{
+	return &Net{
 		contentStore: contentStore,
 		profileStore: Object.ProfileStore.New(bus),
 		index:        Object.Index.New(bus, contentStore),
 	}
 }
 
-func (net *Network) Save() error {
+func (net *Net) Save() error {
 	return Errors.NotImplemented
 }
 
-func (net *Network) Load() error {
+func (net *Net) Load() error {
 	return Errors.NotImplemented
 }
 
 // Attempts to update network object with content specified.
 // If content did not exist, it is added to the network.
 // If content did exist, it is updated.
-func (net *Network) SaveContent(content *Content) error {
+func (net *Net) SaveContent(content *Content) error {
 	net.contentStore.Upsert(content)
 	return nil
 }
 
 // Attempts to update network object with action for profile specified.
-func (net *Network) SaveAction(action *Action) error {
+func (net *Net) SaveAction(action *Action) error {
 	// get related content's copy, if any
 	relatedContent := net.contentStore.Get(action.ContentID)
 
@@ -60,12 +60,12 @@ func (net *Network) SaveAction(action *Action) error {
 	return nil
 }
 
-func (net *Network) Select(profileID int64, page uint8) ([]*Content, error) {
+func (net *Net) Select(profileID int64, page uint8) ([]*Content, error) {
 	return nil, Errors.NotImplemented
 }
 
-func (net *Network) Describe() *NetworkDescription {
-	return &NetworkDescription{
+func (net *Net) Describe() *NetDescription {
+	return &NetDescription{
 		Contents: len(net.contentStore.contents),
 		Profiles: len(net.profileStore.profiles),
 	}
