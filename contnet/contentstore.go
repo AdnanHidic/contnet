@@ -6,17 +6,23 @@ import (
 	"time"
 )
 
-var __gravitySleep, _ = time.ParseDuration("60s")
+type ContentConfig struct {
+	GravityStrength         float64
+	MaxContentAge           time.Duration
+	CheckContentAgeInterval time.Duration
+}
 
 type ContentStore struct {
 	sync.RWMutex
+	config   *ContentConfig
 	bus      *EventBus.EventBus
 	contents map[ID]*Content
 }
 type ContentStoreFactory struct{}
 
-func (factory ContentStoreFactory) New(bus *EventBus.EventBus) *ContentStore {
+func (factory ContentStoreFactory) New(config *ContentConfig, bus *EventBus.EventBus) *ContentStore {
 	store := &ContentStore{
+		config:   config,
 		bus:      bus,
 		contents: map[ID]*Content{},
 	}
@@ -94,7 +100,9 @@ func (store *ContentStore) delete(content *Content) {
 }
 
 func (store *ContentStore) __gravity() {
-	var gravity float64
+	referenceTime := time.Now()
+
+	var age time.Time
 	var contentsToRemove []*Content
 	for {
 		// lock for reading, we just want to calculate values and select candidates for deletion
@@ -103,8 +111,8 @@ func (store *ContentStore) __gravity() {
 		contentsToRemove = []*Content{}
 
 		for _, content := range store.contents {
-			gravity = __applyGravity(content)
-			if gravity > GRAVITY_TRESHOLD {
+			age = store.__applyGravity(content)
+			if age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
 				contentsToRemove = append(contentsToRemove, content)
 			}
 		}
@@ -116,12 +124,11 @@ func (store *ContentStore) __gravity() {
 		}
 		store.Unlock()
 
-		time.Sleep(__gravitySleep)
+		time.Sleep(store.config.CheckContentAgeInterval)
 	}
 }
 
-const GRAVITY_TRESHOLD = 100
-
-func __applyGravity(content *Content) float64 {
-	return 0
+func (store *ContentStore) __applyGravity(content *Content) time.Time {
+	// TODO: algorithm for calculated content age... consider whether user actions should contribute to content's longevity
+	return content.CreatedAt
 }

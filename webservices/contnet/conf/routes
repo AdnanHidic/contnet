@@ -6,10 +6,10 @@ GET     /                                       App.Index
 OPTIONS /*                                      Cors.Handle
 
 # ContNet service actions
-GET     /content                                App.GetContent
+GET     /frontpage                              App.GetFrontpage
 GET     /description                            App.GetDescription
 POST    /content                                App.PostContent
-POST    /content/:contentID/read                App.PostContentRead
+POST    /content/action                         App.PostContentAction
 
 
 # Catch all

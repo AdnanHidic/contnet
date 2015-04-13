@@ -4,7 +4,6 @@ import (
 	"github.com/AdnanHidic/contnet/core/revel/binders"
 	"github.com/AdnanHidic/contnet/core/revel/configreader"
 	cors "github.com/AdnanHidic/contnet/core/revel/cors/app/controllers"
-	ctrl "github.com/AdnanHidic/contnet/webservices/contnet/app/controllers"
 	"github.com/revel/revel"
 )
 
@@ -41,7 +40,6 @@ func init() {
 	revel.OnAppStart(InitContNet)
 
 	// interceptors
-	revel.InterceptMethod((*ctrl.App).SetupContext, revel.BEFORE)
 
 	// Add null.* type binders
 	binders.AddTypeBinders()

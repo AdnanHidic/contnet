@@ -54,10 +54,10 @@ func (index *Index) Index(content *Content) {
 }
 
 func (index *Index) Reindex(old, new *Content) {
-    // remove old
-    index.Remove(old)
-    // add new
-    index.Index(new)
+	// remove old
+	index.Remove(old)
+	// add new
+	index.Index(new)
 }
 
 func (index *Index) Remove(content *Content) {
@@ -75,7 +75,7 @@ func (index *Index) Remove(content *Content) {
 
 		index.Lock()
 		index.index[*topics[i]] = index.removeMention(mentions, content.ID)
-        index.Unlock()
+		index.Unlock()
 	}
 }
 

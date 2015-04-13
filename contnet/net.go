@@ -6,8 +6,8 @@ import (
 )
 
 type NetConfig struct {
+	ContentConfig   *ContentConfig
 	ItemsPerPage    uint8
-	GravityStrength float64
 	NoveltyStrength float64
 	SnapshotPath    string
 }
@@ -24,7 +24,7 @@ type NetFactory struct{}
 
 func (factory NetFactory) New(config *NetConfig) *Net {
 	bus := EventBus.New()
-	contentStore := Object.ContentStore.New(bus)
+	contentStore := Object.ContentStore.New(config.ContentConfig, bus)
 	return &Net{
 		config:       config,
 		bus:          bus,
