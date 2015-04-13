@@ -5,31 +5,47 @@ import (
 	"sync"
 )
 
+type NetConfig struct {
+	ItemsPerPage    uint8
+	GravityStrength float64
+	NoveltyStrength float64
+	SnapshotPath    string
+}
+
 type Net struct {
 	sync.RWMutex
+	config       *NetConfig
 	bus          *EventBus.EventBus
-	index        *Index
-	contentStore *ContentStore
-	profileStore *ProfileStore
+    contentStore *ContentStore
+    profileStore *ProfileStore
+    index        *Index
 }
 type NetFactory struct{}
 
-func (factory NetFactory) New() *Net {
+func (factory NetFactory) New(config *NetConfig) *Net {
 	bus := EventBus.New()
 	contentStore := Object.ContentStore.New(bus)
 	return &Net{
+		config:       config,
+		bus:          bus,
 		contentStore: contentStore,
 		profileStore: Object.ProfileStore.New(bus),
 		index:        Object.Index.New(bus, contentStore),
 	}
 }
 
-func (net *Net) Save() error {
-	return Errors.NotImplemented
+func (net *Net) Snapshot() error {
+	err := net.contentStore.Snapshot(net.config.SnapshotPath,"content")
+    if err != nil { return err }
+
+    return nil
 }
 
-func (net *Net) Load() error {
-	return Errors.NotImplemented
+func (net *Net) Restore() error {
+    err := net.contentStore.RestoreFromSnapshot(net.config.SnapshotPath,"content")
+    if err != nil { return err }
+
+    return nil
 }
 
 // Attempts to update network object with content specified.

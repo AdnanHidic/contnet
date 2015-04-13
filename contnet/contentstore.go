@@ -63,7 +63,7 @@ func (store *ContentStore) Snapshot(path, filename string) error {
 	}
 
 	log.Print(__snapshotSaved)
-    return nil
+	return nil
 }
 
 func (store *ContentStore) RestoreFromSnapshot(path, filename string) error {
@@ -85,8 +85,8 @@ func (store *ContentStore) RestoreFromSnapshot(path, filename string) error {
 		return err
 	}
 
-    log.Print(__snapshotRestored)
-    return nil
+	log.Print(__snapshotRestored)
+	return nil
 }
 
 func (store *ContentStore) Get(id ID) *Content {
