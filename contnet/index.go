@@ -7,16 +7,16 @@ import (
 
 type Index struct {
 	sync.RWMutex
-	bus      EventBus.EventBus
+	bus      *EventBus.EventBus
 	contents *ContentStore
 	index    map[Topic][]ID
 }
 type IndexFactory struct{}
 
 func (factory IndexFactory) New(bus *EventBus.EventBus, contentStore *ContentStore) *Index {
-	bus.SubscribeAsync("content:index", Index.Index, false)
-	bus.SubscribeAsync("content:reindex", Index.Reindex, false)
-	bus.SubscribeAsync("content:removed", Index.Remove, false)
+	bus.SubscribeAsync("content:index", (*Index).Index, false)
+	bus.SubscribeAsync("content:reindex", (*Index).Reindex, false)
+	bus.SubscribeAsync("content:removed", (*Index).Remove, false)
 
 	return &Index{
 		bus:      bus,
@@ -35,8 +35,4 @@ func (index *Index) Reindex(content *Content) {
 
 func (index *Index) Remove(content *Content) {
 
-}
-
-func (index *Index) Select(profileID ID, page uint8) []ID {
-	return nil
 }

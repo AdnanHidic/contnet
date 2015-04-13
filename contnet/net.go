@@ -16,9 +16,9 @@ type Net struct {
 	sync.RWMutex
 	config       *NetConfig
 	bus          *EventBus.EventBus
-    contentStore *ContentStore
-    profileStore *ProfileStore
-    index        *Index
+	contentStore *ContentStore
+	profileStore *ProfileStore
+	index        *Index
 }
 type NetFactory struct{}
 
@@ -29,23 +29,27 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		config:       config,
 		bus:          bus,
 		contentStore: contentStore,
-		profileStore: Object.ProfileStore.New(bus),
+		profileStore: Object.ProfileStore.New(),
 		index:        Object.Index.New(bus, contentStore),
 	}
 }
 
 func (net *Net) Snapshot() error {
-	err := net.contentStore.Snapshot(net.config.SnapshotPath,"content")
-    if err != nil { return err }
+	err := net.contentStore.Snapshot(net.config.SnapshotPath, "content")
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 func (net *Net) Restore() error {
-    err := net.contentStore.RestoreFromSnapshot(net.config.SnapshotPath,"content")
-    if err != nil { return err }
+	err := net.contentStore.RestoreFromSnapshot(net.config.SnapshotPath, "content")
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 // Attempts to update network object with content specified.
