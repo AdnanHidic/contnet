@@ -4,20 +4,22 @@ package contnet
 var Object = struct {
 	Topic          TopicFactory
 	Content        ContentFactory
-	ContentStore ContentStoreFactory
+	ContentStore   ContentStoreFactory
 	TopicInterest  TopicInterestFactory
 	Profile        ProfileFactory
-	ProfileStore ProfileStoreFactory
+	ProfileStore   ProfileStoreFactory
+	Index          IndexFactory
 	Network        NetworkFactory
 	Action         ActionFactory
 	ActionArgument ActionArgumentFactory
 }{
 	Topic:          TopicFactory{},
 	Content:        ContentFactory{},
-	ContentStore: ContentStoreFactory{},
+	ContentStore:   ContentStoreFactory{},
 	TopicInterest:  TopicInterestFactory{},
 	Profile:        ProfileFactory{},
-	ProfileStore: ProfileStoreFactory{},
+	ProfileStore:   ProfileStoreFactory{},
+	Index:          IndexFactory{},
 	Network:        NetworkFactory{},
 	Action:         ActionFactory{},
 	ActionArgument: ActionArgumentFactory{},

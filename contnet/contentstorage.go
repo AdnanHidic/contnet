@@ -1,120 +1,99 @@
 package contnet
 
-import "sync"
+import (
+	"sync"
+	"time"
+    "github.com/asaskevich/EventBus"
+)
+
+var __gravitySleep, _ = time.ParseDuration("60s")
 
 type ContentStore struct {
 	sync.RWMutex
-	contents map[int64]*Content
-	index    map[Topic]Contents
+    bus *EventBus.EventBus
+	contents map[ID]*Content
 }
 type ContentStoreFactory struct{}
 
-func (factory ContentStoreFactory) New() *ContentStore {
-	return &ContentStore{
-		contents: map[int64]*Content{},
-		index:    map[Topic]Contents{},
+func (factory ContentStoreFactory) New(bus *EventBus.EventBus) *ContentStore {
+	store := &ContentStore{
+        bus: bus,
+		contents: map[ID]*Content{},
 	}
+	go store.__gravity()
+	return store
 }
 
-func (storage *ContentStore) Get(id int64) *Content {
-	storage.RLock()
-	defer storage.RUnlock()
+func (store *ContentStore) Snapshot(path, filename string) {
 
-	if content, ok := storage.contents[id]; !ok {
+}
+
+func (store *ContentStore) RestoreFromSnapshot(path, filename string) {
+
+}
+
+func (store *ContentStore) Get(id ID) *Content {
+	store.RLock()
+	defer store.RUnlock()
+
+	if content, ok := store.contents[id]; !ok {
 		return nil
 	} else {
 		return content.Clone()
 	}
 }
 
-func (storage *ContentStore) Create(content *Content) {
-	storage.Lock()
-	defer storage.Unlock()
+func (store *ContentStore) GetMany(ids []ID) []*Content {
+	store.RLock()
+	defer store.RUnlock()
+
+	out := []*Content{}
+
+	for i := 0; i < len(ids); i++ {
+		if content, ok := store.contents[ids[i]]; !ok {
+			out = append(out, nil)
+		} else {
+			out = append(out, content.Clone())
+		}
+	}
+
+	return out
+}
+
+func (store *ContentStore) Upsert(content *Content) {
+	store.Lock()
+	defer store.Unlock()
 
 	// save it to map of contents
-	storage.contents[content.ID] = content.Clone()
+	store.contents[content.ID] = content.Clone()
 
-	// get all topics
-	topics := content.Keywords.GetTopics()
-	// foreach topic, add this content
-
-	storage.addContentToIndex(topics, content)
+    store.bus.Publish("content:reindex", content)
 }
 
-func (storage *ContentStore) Update(old, new *Content) {
-	storage.Lock()
-	defer storage.Unlock()
-
-	// update contents object
-	storage.contents[old.ID] = new
-
-	// now update index
-	// get all topics for old and new content
-	oldTopics := old.Keywords.GetTopics()
-	newTopics := new.Keywords.GetTopics()
-
-	// remove content from all old topics
-	storage.removeContentFromIndex(oldTopics, old)
-
-	// add content to all new topics
-	storage.addContentToIndex(newTopics, new)
+func (store *ContentStore) delete(content *Content) {
+    delete(store.contents, content.ID)
+    store.bus.Publish("content:remove", content)
 }
 
-func (storage *ContentStore) Delete(id int64) {
-	storage.Lock()
-	defer storage.Unlock()
+func (store *ContentStore) __gravity() {
+	var gravity float64
+    for {
+		store.Lock()
 
-	// remove content from contents
-	content, exists := storage.contents[id]
-
-	if !exists {
-		return
-	}
-
-	// remove from index
-	topics := content.Keywords.GetTopics()
-
-	// remove content from topics
-	storage.removeContentFromIndex(topics, content)
-
-	// finally, remove from contents
-	delete(storage.contents, content.ID)
-
-}
-
-func (storage *ContentStore) Select(profile *Profile, page uint8) []*Content {
-    storage.RLock()
-    defer storage.RUnlock()
-
-    return nil
-}
-
-func (storage *ContentStore) addContentToIndex(topics Topics, content *Content) {
-	// foreach topic
-	for i := 0; i < len(topics); i++ {
-		// try to get indexed topic contents
-		contents, isTopicRegistered := storage.index[*topics[i]]
-		// if no topic contents indexed
-		if !isTopicRegistered {
-			// create topic contents
-			contents = Contents{}
-			// save
-			storage.index[*topics[i]] = contents
+		for _, content := range store.contents {
+            gravity = __applyGravity(content)
+            if gravity > GRAVITY_TRESHOLD {
+                store.delete(content)
+            }
 		}
-		// finally, add content to topic contents
-		contents.Add(content)
+
+		store.Unlock()
+		time.Sleep(__gravitySleep)
 	}
 }
 
-func (storage *ContentStore) removeContentFromIndex(topics Topics, content *Content) {
-	// foreach topic
-	for i := 0; i < len(topics); i++ {
-		// try to get indexed topic contents
-		contents, isTopicRegistered := storage.index[*topics[i]]
-		// if no topic contents indexed
-		if isTopicRegistered {
-			// finally, remove content from topic contents
-			contents.Remove(content)
-		}
-	}
+const GRAVITY_TRESHOLD = 100
+
+func __applyGravity(content *Content) float64 {
+    return 0
 }

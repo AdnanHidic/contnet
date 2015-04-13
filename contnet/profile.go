@@ -5,13 +5,13 @@ import "sync"
 // Profile contains information about topic interests for specified content consumer.
 type Profile struct {
 	sync.RWMutex
-	ID             int64
+	ID             ID
 	TopicInterests TopicInterests
 }
 type ProfileFactory struct{}
 
 // Creates new Profile object
-func (factory ProfileFactory) New(id int64, topicInterests TopicInterests) *Profile {
+func (factory ProfileFactory) New(id ID, topicInterests TopicInterests) *Profile {
 	return &Profile{
 		ID:             id,
 		TopicInterests: topicInterests.Clone(),

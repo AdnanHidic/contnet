@@ -24,8 +24,8 @@ var ActionTypes = struct {
 }
 
 type Action struct {
-	ProfileID int64
-	ContentID int64
+	ProfileID ID
+	ContentID ID
 	Content   *Content
 	Type      ActionType
 	Arguments ActionArguments
@@ -33,7 +33,7 @@ type Action struct {
 }
 type ActionFactory struct{}
 
-func (factory ActionFactory) New(profileID, contentID int64, actionType ActionType, timestamp time.Time, args ActionArguments) *Action {
+func (factory ActionFactory) New(profileID, contentID ID, actionType ActionType, timestamp time.Time, args ActionArguments) *Action {
 	return &Action{
 		ProfileID: profileID,
 		ContentID: contentID,

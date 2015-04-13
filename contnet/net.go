@@ -1,18 +1,26 @@
 package contnet
 
-import "sync"
+import (
+	"github.com/asaskevich/EventBus"
+	"sync"
+)
 
 type Network struct {
 	sync.RWMutex
+	bus          *EventBus.EventBus
+	index        *Index
 	contentStore *ContentStore
-	profileStorage *ProfileStore
+	profileStore *ProfileStore
 }
 type NetworkFactory struct{}
 
 func (factory NetworkFactory) New() *Network {
+	bus := EventBus.New()
+	contentStore := Object.ContentStore.New(bus)
 	return &Network{
-		contentStore: Object.ContentStore.New(),
-		profileStorage: Object.ProfileStore.New(),
+		contentStore: contentStore,
+		profileStore: Object.ProfileStore.New(bus),
+		index:        Object.Index.New(bus, contentStore),
 	}
 }
 
@@ -28,18 +36,8 @@ func (net *Network) Load() error {
 // If content did not exist, it is added to the network.
 // If content did exist, it is updated.
 func (net *Network) SaveContent(content *Content) error {
-	contentInStorage := net.contentStore.Get(content.ID)
-	// check if content object already exists in storage
-	switch contentInStorage {
-	case nil:
-		// if content does not exist in storage
-		net.contentStore.Create(content)
-		return nil
-	default:
-		// if content does exist in storage
-		net.contentStore.Update(contentInStorage, content)
-		return nil
-	}
+	net.contentStore.Upsert(content)
+	return nil
 }
 
 // Attempts to update network object with action for profile specified.
@@ -56,26 +54,19 @@ func (net *Network) SaveAction(action *Action) error {
 	action.Content = relatedContent
 
 	// save action to profile
-	net.profileStorage.SaveAction(action)
+	net.profileStore.SaveAction(action)
 
 	// everything is okay
 	return nil
 }
 
 func (net *Network) Select(profileID int64, page uint8) ([]*Content, error) {
-	profile := net.profileStorage.Get(profileID)
-    // if no profile found, return error
-    if profile == nil {
-        return nil, Errors.ProfileNotFound
-    }
-    // select content for profile specified
-    content := net.contentStore.Select(profile, page)
-    return content, nil
+	return nil, Errors.NotImplemented
 }
 
 func (net *Network) Describe() *NetworkDescription {
 	return &NetworkDescription{
 		Contents: len(net.contentStore.contents),
-		Profiles: len(net.profileStorage.profiles),
+		Profiles: len(net.profileStore.profiles),
 	}
 }
