@@ -1,26 +1,12 @@
 package contnet
 
 import (
-	"bufio"
-	"encoding/json"
 	"github.com/asaskevich/EventBus"
-	"log"
-	"os"
 	"sync"
 	"time"
 )
 
 var __gravitySleep, _ = time.ParseDuration("60s")
-
-const (
-	__errSnapshotFile = "Failed to take a content store snapshot because snapshot file could not be created."
-	__errSnapshotJson = "Failed to take a content store snapshot because store object failed to serialize."
-	__snapshotSaved   = "Content store snapshot successfully created."
-
-	__errRestoreFile   = "Failed to restore content store from snapshot file because file could not be opened."
-	__errRestoreJson   = "Failed to restore content store from snapshot file because its JSON content failed to deserialize."
-	__snapshotRestored = "Content store snapshot successfully loaded."
-)
 
 type ContentStore struct {
 	sync.RWMutex
@@ -38,55 +24,24 @@ func (factory ContentStoreFactory) New(bus *EventBus.EventBus) *ContentStore {
 	return store
 }
 
-func __fullPath(path, filename string) string {
-	return path + "/" + filename
-}
-
 func (store *ContentStore) Snapshot(path, filename string) error {
-	// create new snapshot file
-	fullpath := __fullPath(path, filename)
-	file, err := os.Create(fullpath)
-	if err != nil {
-		log.Print(__errSnapshotFile, err.Error())
-		return err
-	}
-	defer file.Close()
-
-	bufferedWriter := bufio.NewWriter(file)
 	store.RLock()
 	defer store.RUnlock()
 
-	err = json.NewEncoder(bufferedWriter).Encode(store.contents)
-	if err != nil {
-		log.Print(__errSnapshotJson, err.Error())
-		return err
-	}
-
-	log.Print(__snapshotSaved)
-	return nil
+	return __snapshot(path, filename, store.contents)
 }
 
 func (store *ContentStore) RestoreFromSnapshot(path, filename string) error {
-	fullpath := __fullPath(path, filename)
-	file, err := os.Open(fullpath)
-	if err != nil {
-		log.Print(__errRestoreFile, err.Error())
-		return err
-	}
-	defer file.Close()
-
-	bufferedReader := bufio.NewReader(file)
 	store.Lock()
 	defer store.Unlock()
 
-	err = json.NewDecoder(bufferedReader).Decode(store.contents)
-	if err != nil {
-		log.Print(__errRestoreJson, err.Error())
-		return err
+	object, err := __restoreFromSnapshot(path, filename, store.contents)
+
+	if err == nil {
+		store.contents = object.(map[ID]*Content)
 	}
 
-	log.Print(__snapshotRestored)
-	return nil
+	return err
 }
 
 func (store *ContentStore) Get(id ID) *Content {
@@ -122,11 +77,11 @@ func (store *ContentStore) Upsert(content *Content) {
 	defer store.Unlock()
 
 	// save it to map of contents
-	_, existed := store.contents[content.ID]
+	old, existed := store.contents[content.ID]
 	store.contents[content.ID] = content.Clone()
 
 	if existed {
-		store.bus.Publish("content:reindex", content)
+		store.bus.Publish("content:reindex", old, content)
 	} else {
 		store.bus.Publish("content:index", content)
 	}
