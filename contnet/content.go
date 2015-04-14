@@ -76,7 +76,7 @@ func (content *Content) Clone() *Content {
 }
 
 var contentAgeCriteria = func(c1, c2 *Content) bool {
-    return c1.age.Before(c2.age)
+    return c1.age.After(c2.age)
 }
 
 // function that defines ordering between content objects
