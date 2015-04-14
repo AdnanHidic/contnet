@@ -8,7 +8,6 @@ import (
 )
 
 type ContentConfig struct {
-	GravityStrength         float64
 	MaxContentAge           time.Duration
 	CheckContentAgeInterval time.Duration
 }
@@ -86,7 +85,7 @@ func (store *ContentStore) Upsert(content *Content) {
 	// save it to map of contents
 	old, existed := store.contents[content.ID]
     new := content.Clone()
-    new.age = __age(time.Now(), *new, store.config.GravityStrength)
+    new.age = __age(time.Now(), *new)
 	store.contents[content.ID] = new
 
 	if existed {
@@ -115,7 +114,7 @@ func (store *ContentStore) __gravity() {
 		// for each content stored
 		for _, content := range store.contents {
 			// calculate age based on content parameters
-			content.age = __age(referenceTime, *content, store.config.GravityStrength)
+			content.age = __age(referenceTime, *content)
 			// if content is considered stale and old, mark it for deletion
 			if content.age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
 				contentsToRemove = append(contentsToRemove, content)
