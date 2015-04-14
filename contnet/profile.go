@@ -33,13 +33,12 @@ func (profile *Profile) SaveAction(action *Action) {
 
 	switch action.Type {
 	case ActionTypes.Read:
-        profile.__saveReadAction(action)
-    default:
-        return
+		profile.__saveReadAction(action)
+	default:
+		return
 	}
 }
 
-
 func (profile *Profile) __saveReadAction(action *Action) {
-    // TODO: algorithm for maintaining user profiles
+	// TODO: algorithm for maintaining user profiles
 }

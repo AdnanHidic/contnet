@@ -25,12 +25,7 @@ func (store *ProfileStore) RestoreFromSnapshot(path, filename string) error {
 	store.Lock()
 	defer store.Unlock()
 
-	object, err := __restoreFromSnapshot(path, filename, store.profiles)
-
-	if err == nil {
-		store.profiles = object.(map[ID]*Profile)
-	}
-
+	_, err := __restoreFromSnapshot(path, filename, &store.profiles)
 	return err
 }
 

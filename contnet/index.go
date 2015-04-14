@@ -41,11 +41,7 @@ func (index *Index) RestoreFromSnapshot(path, filename string) error {
 	index.Lock()
 	defer index.Unlock()
 
-	object, err := __restoreFromSnapshot(path, filename, index.index)
-
-	if err == nil {
-		index.index = object.(map[Topic][]ID)
-	}
+	_, err := __restoreFromSnapshot(path, filename, &index.index)
 
 	return err
 }

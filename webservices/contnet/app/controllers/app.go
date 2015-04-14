@@ -1,11 +1,14 @@
-package contnet
+package controllers
 
 import (
+	"github.com/AdnanHidic/contnet/contnet"
 	base "github.com/AdnanHidic/contnet/core/revel/base/app/controllers"
 	"github.com/guregu/null"
 	"github.com/revel/revel"
 	"net/http"
 )
+
+var Net *contnet.Net
 
 type App struct {
 	base.Base
@@ -19,7 +22,7 @@ func (c *App) NotFound() revel.Result {
 	return c.Error(base.ERROR_NO_ACTION, http.StatusNotFound)
 }
 
-func (c *App) GetFrontpage(forID, limit, offset null.Int) revel.Result {
+func (c *App) GetNthFrontpage(profileID, pageID null.Int) revel.Result {
 	return c.ErrorNotImplemented()
 }
 

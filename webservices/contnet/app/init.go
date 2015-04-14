@@ -1,9 +1,11 @@
 package app
 
 import (
+	"github.com/AdnanHidic/contnet/contnet"
 	"github.com/AdnanHidic/contnet/core/revel/binders"
 	"github.com/AdnanHidic/contnet/core/revel/configreader"
 	cors "github.com/AdnanHidic/contnet/core/revel/cors/app/controllers"
+	"github.com/AdnanHidic/contnet/webservices/contnet/app/controllers"
 	"github.com/revel/revel"
 )
 
@@ -51,5 +53,14 @@ func InitCors() {
 
 func InitContNet() {
 	// load config
+	conf := &contnet.NetConfig{
+		MaxContentAge:           configreader.DurationFromConfig("contnet.max.content.age"),
+		CheckContentAgeInterval: configreader.DurationFromConfig("contnet.max.content.age.check.interval"),
+		ItemsPerPage:            uint8(configreader.IntFromConfig("contnet.items.per.page")),
+		NoveltyStrength:         configreader.FloatFromConfig("contnet.novelty.strength"),
+		SnapshotPath:            configreader.StringFromConfig("contnet.snapshot.path"),
+		SnapshotInterval:        configreader.DurationFromConfig("contnet.snapshot.interval"),
+	}
 
+	controllers.Net = contnet.Object.Net.New(conf)
 }

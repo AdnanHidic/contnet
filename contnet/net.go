@@ -2,16 +2,18 @@ package contnet
 
 import (
 	"github.com/asaskevich/EventBus"
+	"log"
 	"sync"
 	"time"
 )
 
 type NetConfig struct {
-	ContentConfig    *ContentConfig
-	ItemsPerPage     uint8
-	NoveltyStrength  float64
-	SnapshotPath     string
-	SnapshotInterval time.Duration
+	MaxContentAge           time.Duration
+	CheckContentAgeInterval time.Duration
+	ItemsPerPage            uint8
+	NoveltyStrength         float64
+	SnapshotPath            string
+	SnapshotInterval        time.Duration
 }
 
 // TODO: implement trend store
@@ -27,7 +29,7 @@ type NetFactory struct{}
 
 func (factory NetFactory) New(config *NetConfig) *Net {
 	bus := EventBus.New()
-	contentStore := Object.ContentStore.New(config.ContentConfig, bus)
+	contentStore := Object.ContentStore.New(config, bus)
 	net := &Net{
 		config:       config,
 		bus:          bus,
@@ -35,7 +37,9 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		profileStore: Object.ProfileStore.New(),
 		index:        Object.Index.New(config, bus, contentStore),
 	}
-	net.Restore()
+	if err := net.Restore(); err != nil {
+		log.Print("Failed to restore net object, proceeding empty..")
+	}
 	go net.__snapshot()
 
 	return net

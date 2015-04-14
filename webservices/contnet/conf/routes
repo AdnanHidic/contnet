@@ -6,7 +6,7 @@ GET     /                                       App.Index
 OPTIONS /*                                      Cors.Handle
 
 # ContNet service actions
-GET     /frontpage                              App.GetFrontpage
+GET     /frontpage                              App.GetNthFrontpage
 GET     /description                            App.GetDescription
 POST    /content                                App.PostContent
 POST    /content/action                         App.PostContentAction

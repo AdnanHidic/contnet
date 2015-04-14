@@ -2,9 +2,10 @@ package contnet
 
 import (
 	"bufio"
-	"encoding/json"
+	"encoding/gob"
 	"log"
 	"os"
+    "path/filepath"
 )
 
 const (
@@ -13,12 +14,12 @@ const (
 	__snapshotSaved   = "Snapshot successfully created."
 
 	__errRestoreFile   = "Failed to restore object from snapshot file because file could not be opened."
-	__errRestoreJson   = "Failed to restore object from snapshot file because its JSON failed to deserialize."
+	__errRestoreJson   = "Failed to restore object from snapshot file because it failed to deserialize."
 	__snapshotRestored = "Object successfully restored from snapshot."
 )
 
-func __fullPath(path, filename string) string {
-	return path + "/" + filename
+func __fullPath(basePath, filename string) string {
+	return filepath.Join(basePath, filename+".bkp")
 }
 
 func __snapshot(path, filename string, object interface{}) error {
@@ -33,7 +34,7 @@ func __snapshot(path, filename string, object interface{}) error {
 
 	bufferedWriter := bufio.NewWriter(file)
 
-	err = json.NewEncoder(bufferedWriter).Encode(object)
+	err = gob.NewEncoder(bufferedWriter).Encode(object)
 	if err != nil {
 		log.Print(__errSnapshotJson, err.Error())
 		return err
@@ -54,7 +55,7 @@ func __restoreFromSnapshot(path, filename string, object interface{}) (interface
 
 	bufferedReader := bufio.NewReader(file)
 
-	err = json.NewDecoder(bufferedReader).Decode(object)
+	err = gob.NewDecoder(bufferedReader).Decode(object)
 	if err != nil {
 		log.Print(__errRestoreJson, err.Error())
 		return nil, err

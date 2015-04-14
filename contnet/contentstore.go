@@ -7,20 +7,15 @@ import (
 	"time"
 )
 
-type ContentConfig struct {
-	MaxContentAge           time.Duration
-	CheckContentAgeInterval time.Duration
-}
-
 type ContentStore struct {
 	sync.RWMutex
-	config   *ContentConfig
+	config   *NetConfig
 	bus      *EventBus.EventBus
 	contents map[ID]*Content
 }
 type ContentStoreFactory struct{}
 
-func (factory ContentStoreFactory) New(config *ContentConfig, bus *EventBus.EventBus) *ContentStore {
+func (factory ContentStoreFactory) New(config *NetConfig, bus *EventBus.EventBus) *ContentStore {
 	store := &ContentStore{
 		config:   config,
 		bus:      bus,
@@ -41,7 +36,7 @@ func (store *ContentStore) RestoreFromSnapshot(path, filename string) error {
 	store.Lock()
 	defer store.Unlock()
 
-	object, err := __restoreFromSnapshot(path, filename, store.contents)
+	object, err := __restoreFromSnapshot(path, filename, &store.contents)
 
 	if err == nil {
 		store.contents = object.(map[ID]*Content)
