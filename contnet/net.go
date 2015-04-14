@@ -61,7 +61,7 @@ func (net *Net) Snapshot() error {
 		return err
 	}
 
-	if err := net.index.Snapshot(net.config.SnapshotPath, "profiles"); err != nil {
+	if err := net.profileStore.Snapshot(net.config.SnapshotPath, "profiles"); err != nil {
 		return err
 	}
 

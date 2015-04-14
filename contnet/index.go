@@ -34,7 +34,7 @@ func (index *Index) Snapshot(path, filename string) error {
 	index.RLock()
 	defer index.RUnlock()
 
-	return __snapshot(path, filename, index.index)
+	return __snapshot(path, filename, &index.index)
 }
 
 func (index *Index) RestoreFromSnapshot(path, filename string) error {

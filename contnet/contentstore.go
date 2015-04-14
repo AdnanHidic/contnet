@@ -29,19 +29,14 @@ func (store *ContentStore) Snapshot(path, filename string) error {
 	store.RLock()
 	defer store.RUnlock()
 
-	return __snapshot(path, filename, store.contents)
+	return __snapshot(path, filename, &store.contents)
 }
 
 func (store *ContentStore) RestoreFromSnapshot(path, filename string) error {
 	store.Lock()
 	defer store.Unlock()
 
-	object, err := __restoreFromSnapshot(path, filename, &store.contents)
-
-	if err == nil {
-		store.contents = object.(map[ID]*Content)
-	}
-
+	_, err := __restoreFromSnapshot(path, filename, &store.contents)
 	return err
 }
 

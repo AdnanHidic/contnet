@@ -3,9 +3,10 @@ package contnet
 import (
 	"bufio"
 	"encoding/gob"
+	"github.com/kardianos/osext"
 	"log"
 	"os"
-    "path/filepath"
+	"path/filepath"
 )
 
 const (
@@ -19,6 +20,9 @@ const (
 )
 
 func __fullPath(basePath, filename string) string {
+	if basePath == "" {
+		basePath, _ = osext.ExecutableFolder()
+	}
 	return filepath.Join(basePath, filename+".bkp")
 }
 
@@ -39,6 +43,8 @@ func __snapshot(path, filename string, object interface{}) error {
 		log.Print(__errSnapshotJson, err.Error())
 		return err
 	}
+
+    bufferedWriter.Flush()
 
 	log.Print(__snapshotSaved)
 	return nil

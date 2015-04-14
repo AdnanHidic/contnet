@@ -14,6 +14,7 @@ var (
 	ERROR_NOT_FOUND       = errors.New("Not found.")
 	ERROR_NO_ACTION       = errors.New("Action not found.")
 	ERROR_NOT_IMPLEMENTED = errors.New("Action not implemented.")
+	ERROR_BAD_REQUEST     = errors.New("Bad request.")
 )
 
 type Base struct {
@@ -23,6 +24,7 @@ type Base struct {
 func (b *Base) FromJson(obj interface{}, validator func(interface{}, *revel.Validation)) revel.Result {
 	err := json.NewDecoder(b.Request.Body).Decode(&obj)
 	if err != nil {
+        revel.ERROR.Print(err.Error())
 		return b.Error(ERROR_JSON_INPUT, http.StatusBadRequest)
 	}
 
@@ -59,4 +61,8 @@ func (b *Base) ErrorInternalMsg(msg string) revel.Result {
 
 func (b *Base) ErrorNotImplemented() revel.Result {
 	return b.Error(ERROR_NOT_IMPLEMENTED, http.StatusInternalServerError)
+}
+
+func (b *Base) ErrorBadRequest() revel.Result {
+	return b.Error(ERROR_BAD_REQUEST, http.StatusBadRequest)
 }

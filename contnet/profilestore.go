@@ -18,7 +18,7 @@ func (store *ProfileStore) Snapshot(path, filename string) error {
 	store.RLock()
 	defer store.RUnlock()
 
-	return __snapshot(path, filename, store.profiles)
+	return __snapshot(path, filename, &store.profiles)
 }
 
 func (store *ProfileStore) RestoreFromSnapshot(path, filename string) error {

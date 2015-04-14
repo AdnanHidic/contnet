@@ -23,17 +23,45 @@ func (c *App) NotFound() revel.Result {
 }
 
 func (c *App) GetNthFrontpage(profileID, pageID null.Int) revel.Result {
-	return c.ErrorNotImplemented()
+	if !profileID.Valid || !pageID.Valid {
+		return c.ErrorBadRequest()
+	}
+
+	output, err := Net.Select(profileID.Int64, uint8(pageID.Int64))
+	if err != nil {
+		revel.ERROR.Print(err.Error())
+		return c.ErrorInternalMsg(err.Error())
+	}
+
+	return c.RenderJson(output)
 }
 
 func (c *App) GetDescription() revel.Result {
-	return c.ErrorNotImplemented()
+	output := Net.Describe()
+	return c.RenderJson(output)
 }
 
 func (c *App) PostContent() revel.Result {
-	return c.ErrorNotImplemented()
+	// get input
+	content := &contnet.Content{}
+	if err := c.FromJson(content, nil); err != nil {
+		return err
+	}
+
+	Net.SaveContent(content)
+	return c.RenderText("OK.")
 }
 
 func (c *App) PostContentAction(contentID null.Int) revel.Result {
-	return c.ErrorNotImplemented()
+	// get input
+	action := &contnet.Action{}
+	if err := c.FromJson(action, nil); err != nil {
+		return err
+	}
+
+	if err := Net.SaveAction(action); err != nil {
+		return c.ErrorNotFound()
+	}
+
+	return c.RenderText("OK.")
 }

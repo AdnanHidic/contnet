@@ -42,11 +42,11 @@ type ID int64
 
 // Content object contains information pertinent to content being indexed by ContNet.
 type Content struct {
-	ID         ID
-	Keywords   Keywords
-	CreatedAt  time.Time
-	Quality    float64
-	Popularity float64
+	ID         ID        `json:"id"`
+	Keywords   Keywords  `json:"keywords"`
+	CreatedAt  time.Time `json:"createdAt"`
+	Quality    float64   `json:"quality"`
+	Popularity float64   `json:"popularity"`
 
 	// virtual attribute
 	Age time.Time
