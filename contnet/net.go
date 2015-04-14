@@ -35,7 +35,7 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		profileStore: Object.ProfileStore.New(),
 		index:        Object.Index.New(config, bus, contentStore),
 	}
-    net.Restore()
+	net.Restore()
 	go net.__snapshot()
 
 	return net
@@ -101,7 +101,7 @@ func (net *Net) SaveAction(action *Action) error {
 		return Errors.ContentNotFound
 	}
 
-	// injected related content to action
+	// inject related content to action
 	action.Content = relatedContent
 
 	// save action to profile
