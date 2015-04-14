@@ -2,6 +2,7 @@ package contnet
 
 import (
 	"github.com/asaskevich/EventBus"
+	"log"
 	"sync"
 	"time"
 )
@@ -110,11 +111,11 @@ func (store *ContentStore) __gravity() {
 
 		contentsToRemove = []*Content{}
 
-        // for each content stored
+		// for each content stored
 		for _, content := range store.contents {
-            // calculate age based on content parameters
-			age = __age(content.CreatedAt, content.Quality, content.Popularity, store.config.GravityStrength)
-            // if content is considered stale and old, mark it for deletion
+			// calculate age based on content parameters
+			age = __age(*content, store.config.GravityStrength)
+			// if content is considered stale and old, mark it for deletion
 			if age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
 				contentsToRemove = append(contentsToRemove, content)
 			}
@@ -122,9 +123,11 @@ func (store *ContentStore) __gravity() {
 		// reading part is over, switch to full write lock to perform deletions
 		store.RUnlock()
 		store.Lock()
+		log.Printf("GLOBAL PAUSE: Cleaning stale content from content store. Total: %d marked for deletion", len(contentsToRemove))
 		for i := 0; i < len(contentsToRemove); i++ {
 			store.delete(contentsToRemove[i])
 		}
+		log.Print("GLOBAL RESUME: Stale content cleaned from content store.")
 		store.Unlock()
 
 		time.Sleep(store.config.CheckContentAgeInterval)

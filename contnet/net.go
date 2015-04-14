@@ -30,7 +30,7 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		bus:          bus,
 		contentStore: contentStore,
 		profileStore: Object.ProfileStore.New(),
-		index:        Object.Index.New(bus, contentStore),
+		index:        Object.Index.New(config, bus, contentStore),
 	}
 }
 
@@ -40,7 +40,12 @@ func (net *Net) Snapshot() error {
 		return err
 	}
 
-	// TODO: snapshot index, profiles, trends
+	err = net.index.Snapshot(net.config.SnapshotPath, "index")
+	if err != nil {
+		return err
+	}
+
+	// TODO: snapshot profiles, trends
 
 	return nil
 }
@@ -51,7 +56,12 @@ func (net *Net) Restore() error {
 		return err
 	}
 
-	// TODO: restore index, profiles, trends
+	err = net.index.RestoreFromSnapshot(net.config.SnapshotPath, "index")
+	if err != nil {
+		return err
+	}
+
+	// TODO: restore profiles, trends
 
 	return nil
 }

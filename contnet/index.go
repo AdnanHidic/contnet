@@ -7,14 +7,16 @@ import (
 
 type Index struct {
 	sync.RWMutex
+	config   *NetConfig
 	bus      *EventBus.EventBus
 	contents *ContentStore
 	index    map[Topic][]ID
 }
 type IndexFactory struct{}
 
-func (factory IndexFactory) New(bus *EventBus.EventBus, contentStore *ContentStore) *Index {
+func (factory IndexFactory) New(config *NetConfig, bus *EventBus.EventBus, contentStore *ContentStore) *Index {
 	index := &Index{
+		config:   config,
 		bus:      bus,
 		index:    map[Topic][]ID{},
 		contents: contentStore,
@@ -25,6 +27,26 @@ func (factory IndexFactory) New(bus *EventBus.EventBus, contentStore *ContentSto
 	bus.SubscribeAsync("content:removed", index.Remove, false)
 
 	return index
+}
+
+func (index *Index) Snapshot(path, filename string) error {
+	index.RLock()
+	defer index.RUnlock()
+
+	return __snapshot(path, filename, index.index)
+}
+
+func (index *Index) RestoreFromSnapshot(path, filename string) error {
+	index.Lock()
+	defer index.Unlock()
+
+	object, err := __restoreFromSnapshot(path, filename, index.index)
+
+	if err == nil {
+		index.index = object.(map[Topic][]ID)
+	}
+
+	return err
 }
 
 // Index previously unindexed content.
@@ -85,7 +107,7 @@ func (index *Index) addMention(mentions []ID, content *Content) []ID {
 	contents = append(contents, content)
 
 	// calculate rank for all contents plus the new content & sort (best first)
-	contents = __sortContentByRank(contents)
+	contents = index.__sortContentByAge(contents)
 
 	// project slice to extract IDs
 	return __extractIDsFromContents(contents)
@@ -111,8 +133,8 @@ func (index *Index) removeMention(mentions []ID, mention ID) []ID {
 	// get contents from store by ids provided and in-order specified
 	contents := index.contents.GetMany(mentions)
 
-	// calculate rank for all contents  & sort (best first)
-	contents = __sortContentByRank(contents)
+	// calculate age for all contents  & sort (best first)
+	contents = index.__sortContentByAge(contents)
 
 	// project slice to extract IDs
 	return __extractIDsFromContents(contents)
@@ -127,7 +149,16 @@ func __extractIDsFromContents(contents []*Content) []ID {
 	return ids
 }
 
-func __sortContentByRank(contents []*Content) []*Content {
-	// TODO: content ranking
-	return nil
+
+
+func (index *Index) __sortContentByAge(contents []*Content) []*Content {
+	// naîve implementation. First calculate ages, then sort
+	for i := 0; i < len(contents); i++ {
+		contents[i].age = __age(*contents[i], index.config.ContentConfig.GravityStrength)
+	}
+
+	// do the sort
+	ContentBy(contentAgeCriteria).Sort(contents)
+    // return
+	return contents
 }
