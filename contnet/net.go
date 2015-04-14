@@ -35,6 +35,7 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		profileStore: Object.ProfileStore.New(),
 		index:        Object.Index.New(config, bus, contentStore),
 	}
+    net.Restore()
 	go net.__snapshot()
 
 	return net
