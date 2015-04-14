@@ -19,7 +19,6 @@ func (c *App) NotFound() revel.Result {
 	return c.Error(base.ERROR_NO_ACTION, http.StatusNotFound)
 }
 
-
 func (c *App) GetFrontpage(forID, limit, offset null.Int) revel.Result {
 	return c.ErrorNotImplemented()
 }

@@ -40,6 +40,8 @@ func (net *Net) Snapshot() error {
 		return err
 	}
 
+	// TODO: snapshot index, profiles, trends
+
 	return nil
 }
 
@@ -49,15 +51,16 @@ func (net *Net) Restore() error {
 		return err
 	}
 
+	// TODO: restore index, profiles, trends
+
 	return nil
 }
 
 // Attempts to update network object with content specified.
 // If content did not exist, it is added to the network.
 // If content did exist, it is updated.
-func (net *Net) SaveContent(content *Content) error {
+func (net *Net) SaveContent(content *Content) {
 	net.contentStore.Upsert(content)
-	return nil
 }
 
 // Attempts to update network object with action for profile specified.
@@ -81,6 +84,7 @@ func (net *Net) SaveAction(action *Action) error {
 }
 
 func (net *Net) Select(profileID int64, page uint8) ([]*Content, error) {
+	// TODO implement selector
 	return nil, Errors.NotImplemented
 }
 
