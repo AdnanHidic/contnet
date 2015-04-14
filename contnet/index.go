@@ -3,6 +3,7 @@ package contnet
 import (
 	"github.com/asaskevich/EventBus"
 	"sync"
+    "time"
 )
 
 type Index struct {
@@ -152,9 +153,10 @@ func __extractIDsFromContents(contents []*Content) []ID {
 
 
 func (index *Index) __sortContentByAge(contents []*Content) []*Content {
+    referenceTime := time.Now()
 	// naîve implementation. First calculate ages, then sort
 	for i := 0; i < len(contents); i++ {
-		contents[i].age = __age(*contents[i], index.config.ContentConfig.GravityStrength)
+		contents[i].age = __age(referenceTime, *contents[i], index.config.ContentConfig.GravityStrength)
 	}
 
 	// do the sort

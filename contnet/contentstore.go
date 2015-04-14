@@ -114,7 +114,7 @@ func (store *ContentStore) __gravity() {
 		// for each content stored
 		for _, content := range store.contents {
 			// calculate age based on content parameters
-			age = __age(*content, store.config.GravityStrength)
+			age = __age(referenceTime, *content, store.config.GravityStrength)
 			// if content is considered stale and old, mark it for deletion
 			if age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
 				contentsToRemove = append(contentsToRemove, content)
