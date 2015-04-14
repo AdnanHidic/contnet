@@ -44,7 +44,7 @@ func __snapshot(path, filename string, object interface{}) error {
 		return err
 	}
 
-    bufferedWriter.Flush()
+	bufferedWriter.Flush()
 
 	log.Print(__snapshotSaved)
 	return nil

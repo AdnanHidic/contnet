@@ -22,9 +22,9 @@ var ActionArgumentTypes = struct {
 }
 
 type ActionArgument struct {
-	Name  string
-	Type  ActionArgumentType
-	Value interface{}
+	Name  string `json:"name"`
+	Type  ActionArgumentType `json:"type"`
+	Value interface{} `json:"value"`
 }
 type ActionArgumentFactory struct{}
 

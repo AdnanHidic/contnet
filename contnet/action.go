@@ -24,12 +24,12 @@ var ActionTypes = struct {
 }
 
 type Action struct {
-	ProfileID ID
-	ContentID ID
+	ProfileID ID `json:"profileID"`
+	ContentID ID `json:"contentID"`
 	Content   *Content
-	Type      ActionType
-	Arguments ActionArguments
-	Timestamp time.Time
+	Type      ActionType      `json:"type"`
+	Arguments ActionArguments `json:"arguments"`
+	Timestamp time.Time       `json:"timestamp"`
 }
 type ActionFactory struct{}
 

@@ -24,7 +24,7 @@ type Base struct {
 func (b *Base) FromJson(obj interface{}, validator func(interface{}, *revel.Validation)) revel.Result {
 	err := json.NewDecoder(b.Request.Body).Decode(&obj)
 	if err != nil {
-        revel.ERROR.Print(err.Error())
+		revel.ERROR.Print(err.Error())
 		return b.Error(ERROR_JSON_INPUT, http.StatusBadRequest)
 	}
 
