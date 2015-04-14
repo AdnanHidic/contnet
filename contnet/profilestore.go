@@ -14,6 +14,26 @@ func (factory ProfileStoreFactory) New() *ProfileStore {
 	}
 }
 
+func (store *ProfileStore) Snapshot(path, filename string) error {
+	store.RLock()
+	defer store.RUnlock()
+
+	return __snapshot(path, filename, store.profiles)
+}
+
+func (store *ProfileStore) RestoreFromSnapshot(path, filename string) error {
+	store.Lock()
+	defer store.Unlock()
+
+	object, err := __restoreFromSnapshot(path, filename, store.profiles)
+
+	if err == nil {
+		store.profiles = object.(map[ID]*Profile)
+	}
+
+	return err
+}
+
 func (store *ProfileStore) Get(id ID) *Profile {
 	store.RLock()
 	defer store.RUnlock()

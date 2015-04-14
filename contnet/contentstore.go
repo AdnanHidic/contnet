@@ -84,8 +84,8 @@ func (store *ContentStore) Upsert(content *Content) {
 
 	// save it to map of contents
 	old, existed := store.contents[content.ID]
-    new := content.Clone()
-    new.age = __age(time.Now(), *new)
+	new := content.Clone()
+	new.Age = __age(time.Now(), *new)
 	store.contents[content.ID] = new
 
 	if existed {
@@ -114,9 +114,9 @@ func (store *ContentStore) __gravity() {
 		// for each content stored
 		for _, content := range store.contents {
 			// calculate age based on content parameters
-			content.age = __age(referenceTime, *content)
+			content.Age = __age(referenceTime, *content)
 			// if content is considered stale and old, mark it for deletion
-			if content.age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
+			if content.Age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
 				contentsToRemove = append(contentsToRemove, content)
 			}
 		}

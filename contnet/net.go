@@ -12,6 +12,7 @@ type NetConfig struct {
 	SnapshotPath    string
 }
 
+// TODO: implement trend store
 type Net struct {
 	sync.RWMutex
 	config       *NetConfig
@@ -35,33 +36,37 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 }
 
 func (net *Net) Snapshot() error {
-	err := net.contentStore.Snapshot(net.config.SnapshotPath, "content")
-	if err != nil {
+	if err := net.contentStore.Snapshot(net.config.SnapshotPath, "content"); err != nil {
 		return err
 	}
 
-	err = net.index.Snapshot(net.config.SnapshotPath, "index")
-	if err != nil {
+	if err := net.index.Snapshot(net.config.SnapshotPath, "index"); err != nil {
 		return err
 	}
 
-	// TODO: snapshot profiles, trends
+	if err := net.index.Snapshot(net.config.SnapshotPath, "profiles"); err != nil {
+		return err
+	}
+
+	// TODO: snapshot trends
 
 	return nil
 }
 
 func (net *Net) Restore() error {
-	err := net.contentStore.RestoreFromSnapshot(net.config.SnapshotPath, "content")
-	if err != nil {
+	if err := net.contentStore.RestoreFromSnapshot(net.config.SnapshotPath, "content"); err != nil {
 		return err
 	}
 
-	err = net.index.RestoreFromSnapshot(net.config.SnapshotPath, "index")
-	if err != nil {
+	if err := net.index.RestoreFromSnapshot(net.config.SnapshotPath, "index"); err != nil {
 		return err
 	}
 
-	// TODO: restore profiles, trends
+	if err := net.profileStore.RestoreFromSnapshot(net.config.SnapshotPath, "profiles"); err != nil {
+		return err
+	}
+
+	// TODO: restore trends
 
 	return nil
 }

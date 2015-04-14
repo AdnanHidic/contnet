@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// TODO: index should periodically re-sort content IDs for topic
 type Index struct {
 	sync.RWMutex
 	config   *NetConfig
@@ -99,8 +100,8 @@ func (index *Index) Remove(content *Content) {
 		index.index[*topics[i]] = index.removeMention(mentions, content.ID)
 		index.Unlock()
 	}
-    // notify anly listener that these topics have been unmentioned
-    index.bus.Publish("topics:unmentioned", topics)
+	// notify anly listener that these topics have been unmentioned
+	index.bus.Publish("topics:unmentioned", topics)
 }
 
 func (index *Index) addMention(mentions []ID, content *Content) []ID {
@@ -109,7 +110,7 @@ func (index *Index) addMention(mentions []ID, content *Content) []ID {
 	contents = append(contents, content)
 
 	// sort all contents plus the new content & sort (best first)
-    ContentBy(contentAgeCriteria).Sort(contents)
+	ContentBy(contentAgeCriteria).Sort(contents)
 
 	// project slice to extract IDs
 	return __extractIDsFromContents(contents)
@@ -136,7 +137,7 @@ func (index *Index) removeMention(mentions []ID, mention ID) []ID {
 	contents := index.contents.GetMany(mentions)
 
 	// calculate age for all contents  & sort (best first)
-    ContentBy(contentAgeCriteria).Sort(contents)
+	ContentBy(contentAgeCriteria).Sort(contents)
 
 	// project slice to extract IDs
 	return __extractIDsFromContents(contents)

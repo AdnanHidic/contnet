@@ -1,8 +1,8 @@
 package contnet
 
 import (
-    "time"
-    "sort"
+	"sort"
+	"time"
 )
 
 // Keyword is represented by its unique id which is of type unsigned int32.
@@ -49,7 +49,7 @@ type Content struct {
 	Popularity float64
 
 	// virtual attribute
-	age time.Time
+	Age time.Time
 }
 type ContentFactory struct{}
 
@@ -76,36 +76,37 @@ func (content *Content) Clone() *Content {
 }
 
 var contentAgeCriteria = func(c1, c2 *Content) bool {
-    return c1.age.After(c2.age)
+	return c1.Age.After(c2.Age)
 }
 
 // function that defines ordering between content objects
-type ContentBy func (c1, c2 *Content) bool
+type ContentBy func(c1, c2 *Content) bool
 
 // method on the function type, sorts the argument slice according  to the function
 func (contentBy ContentBy) Sort(contents []*Content) {
-    cs := &contentSorter {
-        contents: contents,
-        contentBy: contentBy,
-    }
-    sort.Sort(cs)
+	cs := &contentSorter{
+		contents:  contents,
+		contentBy: contentBy,
+	}
+	sort.Sort(cs)
 }
 
 type contentSorter struct {
-    contents []*Content
-    contentBy func(c1, c2 *Content) bool
+	contents  []*Content
+	contentBy func(c1, c2 *Content) bool
 }
+
 // Len is part of sort.Interface.
 func (cs *contentSorter) Len() int {
-    return len(cs.contents)
+	return len(cs.contents)
 }
 
 // Swap is part of sort.Interface.
 func (cs *contentSorter) Swap(i, j int) {
-    cs.contents[i], cs.contents[j] = cs.contents[j], cs.contents[i]
+	cs.contents[i], cs.contents[j] = cs.contents[j], cs.contents[i]
 }
 
 // Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
 func (cs *contentSorter) Less(i, j int) bool {
-    return cs.contentBy(cs.contents[i], cs.contents[j])
+	return cs.contentBy(cs.contents[i], cs.contents[j])
 }
