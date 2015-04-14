@@ -3,7 +3,6 @@ package contnet
 import (
 	"github.com/asaskevich/EventBus"
 	"sync"
-    "time"
 )
 
 type Index struct {
@@ -107,8 +106,8 @@ func (index *Index) addMention(mentions []ID, content *Content) []ID {
 	contents := index.contents.GetMany(mentions)
 	contents = append(contents, content)
 
-	// calculate rank for all contents plus the new content & sort (best first)
-	contents = index.__sortContentByAge(contents)
+	// sort all contents plus the new content & sort (best first)
+    ContentBy(contentAgeCriteria).Sort(contents)
 
 	// project slice to extract IDs
 	return __extractIDsFromContents(contents)
@@ -135,7 +134,7 @@ func (index *Index) removeMention(mentions []ID, mention ID) []ID {
 	contents := index.contents.GetMany(mentions)
 
 	// calculate age for all contents  & sort (best first)
-	contents = index.__sortContentByAge(contents)
+    ContentBy(contentAgeCriteria).Sort(contents)
 
 	// project slice to extract IDs
 	return __extractIDsFromContents(contents)
@@ -148,19 +147,4 @@ func __extractIDsFromContents(contents []*Content) []ID {
 		ids = append(ids, contents[i].ID)
 	}
 	return ids
-}
-
-
-
-func (index *Index) __sortContentByAge(contents []*Content) []*Content {
-    referenceTime := time.Now()
-	// naîve implementation. First calculate ages, then sort
-	for i := 0; i < len(contents); i++ {
-		contents[i].age = __age(referenceTime, *contents[i], index.config.ContentConfig.GravityStrength)
-	}
-
-	// do the sort
-	ContentBy(contentAgeCriteria).Sort(contents)
-    // return
-	return contents
 }

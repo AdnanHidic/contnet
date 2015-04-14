@@ -85,12 +85,14 @@ func (store *ContentStore) Upsert(content *Content) {
 
 	// save it to map of contents
 	old, existed := store.contents[content.ID]
-	store.contents[content.ID] = content.Clone()
+    new := content.Clone()
+    new.age = __age(time.Now(), *new, store.config.GravityStrength)
+	store.contents[content.ID] = new
 
 	if existed {
-		store.bus.Publish("content:reindex", old, content)
+		store.bus.Publish("content:reindex", old, new)
 	} else {
-		store.bus.Publish("content:index", content)
+		store.bus.Publish("content:index", new)
 	}
 
 }
@@ -103,7 +105,6 @@ func (store *ContentStore) delete(content *Content) {
 func (store *ContentStore) __gravity() {
 	referenceTime := time.Now()
 
-	var age time.Time
 	var contentsToRemove []*Content
 	for {
 		// lock for reading, we just want to calculate values and select candidates for deletion
@@ -114,9 +115,9 @@ func (store *ContentStore) __gravity() {
 		// for each content stored
 		for _, content := range store.contents {
 			// calculate age based on content parameters
-			age = __age(referenceTime, *content, store.config.GravityStrength)
+			content.age = __age(referenceTime, *content, store.config.GravityStrength)
 			// if content is considered stale and old, mark it for deletion
-			if age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
+			if content.age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
 				contentsToRemove = append(contentsToRemove, content)
 			}
 		}
