@@ -3,13 +3,15 @@ package contnet
 import (
 	"github.com/asaskevich/EventBus"
 	"sync"
+	"time"
 )
 
 type NetConfig struct {
-	ContentConfig   *ContentConfig
-	ItemsPerPage    uint8
-	NoveltyStrength float64
-	SnapshotPath    string
+	ContentConfig    *ContentConfig
+	ItemsPerPage     uint8
+	NoveltyStrength  float64
+	SnapshotPath     string
+	SnapshotInterval time.Duration
 }
 
 // TODO: implement trend store
@@ -26,12 +28,22 @@ type NetFactory struct{}
 func (factory NetFactory) New(config *NetConfig) *Net {
 	bus := EventBus.New()
 	contentStore := Object.ContentStore.New(config.ContentConfig, bus)
-	return &Net{
+	net := &Net{
 		config:       config,
 		bus:          bus,
 		contentStore: contentStore,
 		profileStore: Object.ProfileStore.New(),
 		index:        Object.Index.New(config, bus, contentStore),
+	}
+	go net.__snapshot()
+
+	return net
+}
+
+func (net *Net) __snapshot() {
+	for {
+		net.Snapshot()
+		time.Sleep(net.config.SnapshotInterval)
 	}
 }
 
