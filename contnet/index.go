@@ -15,6 +15,31 @@ type Index struct {
 }
 type IndexFactory struct{}
 
+type IndexNodeDescription struct {
+	Keyword1 Keyword
+	Keyword2 Keyword
+	IDs      []ID
+}
+
+func (index *Index) Describe() []*IndexNodeDescription {
+	index.RLock()
+	defer index.RUnlock()
+
+	out := []*IndexNodeDescription{}
+
+	for topic, mentions := range index.index {
+		k1, k2 := topic.GetKeywords()
+		desc := &IndexNodeDescription{
+			Keyword1: k1,
+			Keyword2: k2,
+			IDs:      mentions,
+		}
+		out = append(out, desc)
+	}
+
+	return out
+}
+
 func (factory IndexFactory) New(config *NetConfig, bus *EventBus.EventBus, contentStore *ContentStore) *Index {
 	index := &Index{
 		config:   config,

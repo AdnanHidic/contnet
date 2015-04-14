@@ -49,7 +49,7 @@ type Content struct {
 	Popularity float64   `json:"popularity"`
 
 	// virtual attribute
-	Age time.Time
+	Age time.Time `json:"age"`
 }
 type ContentFactory struct{}
 
@@ -66,13 +66,14 @@ func (factory ContentFactory) New(id ID, keywords Keywords, createdAt time.Time,
 
 // Content object clone (deep copy)
 func (content *Content) Clone() *Content {
-	return Object.Content.New(
-		content.ID,
-		content.Keywords,
-		content.CreatedAt,
-		content.Quality,
-		content.Popularity,
-	)
+	return &Content{
+		ID:         content.ID,
+		Keywords:   content.Keywords.Clone(),
+		CreatedAt:  content.CreatedAt,
+		Quality:    content.Quality,
+		Popularity: content.Popularity,
+		Age:        content.Age,
+	}
 }
 
 var contentAgeCriteria = func(c1, c2 *Content) bool {

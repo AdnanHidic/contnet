@@ -15,6 +15,19 @@ type ContentStore struct {
 }
 type ContentStoreFactory struct{}
 
+func (store *ContentStore) Describe() []*Content {
+	store.RLock()
+	defer store.RUnlock()
+
+	out := []*Content{}
+
+	for _, content := range store.contents {
+		out = append(out, content.Clone())
+	}
+
+	return out
+}
+
 func (factory ContentStoreFactory) New(config *NetConfig, bus *EventBus.EventBus) *ContentStore {
 	store := &ContentStore{
 		config:   config,
@@ -92,19 +105,21 @@ func (store *ContentStore) delete(content *Content) {
 }
 
 func (store *ContentStore) __gravity() {
-	referenceTime := time.Now()
 
 	var contentsToRemove []*Content
+    var referenceTime time.Time
 	for {
 		// lock for reading, we just want to calculate values and select candidates for deletion
 		store.RLock()
 
 		contentsToRemove = []*Content{}
+        referenceTime = time.Now()
 
 		// for each content stored
 		for _, content := range store.contents {
 			// calculate age based on content parameters
 			content.Age = __age(referenceTime, *content)
+            log.Println(content.Age)
 			// if content is considered stale and old, mark it for deletion
 			if content.Age.Before(referenceTime.Add(-store.config.MaxContentAge)) {
 				contentsToRemove = append(contentsToRemove, content)

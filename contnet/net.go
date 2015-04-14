@@ -122,7 +122,7 @@ func (net *Net) Select(profileID int64, page uint8) ([]*Content, error) {
 
 func (net *Net) Describe() *NetDescription {
 	return &NetDescription{
-		Contents: len(net.contentStore.contents),
-		Profiles: len(net.profileStore.profiles),
+		Contents: net.contentStore.Describe(),
+		Index:    net.index.Describe(),
 	}
 }
