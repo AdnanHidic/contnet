@@ -99,6 +99,8 @@ func (index *Index) Remove(content *Content) {
 		index.index[*topics[i]] = index.removeMention(mentions, content.ID)
 		index.Unlock()
 	}
+    // notify anly listener that these topics have been unmentioned
+    index.bus.Publish("topics:unmentioned", topics)
 }
 
 func (index *Index) addMention(mentions []ID, content *Content) []ID {
