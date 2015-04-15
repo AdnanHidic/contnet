@@ -90,8 +90,8 @@ func (topicInterests TopicInterests) Apply(topics Topics, value float64) TopicIn
 				break
 			}
 		}
-		// topic not found, create new interest
-		if !found {
+		// topic not found, create new interest if interest is positive, otherwise ignore it
+		if !found && value > 0 {
 			interest := Object.TopicInterest.New(*topics[i], Interest(value))
 			topicInterests = append(topicInterests, interest)
 
