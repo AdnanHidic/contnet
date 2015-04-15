@@ -11,7 +11,7 @@ type NetConfig struct {
 	MaxContentAge           time.Duration
 	CheckContentAgeInterval time.Duration
 	ItemsPerPage            uint8
-	NoveltyStrength         float64
+	NoveltyPct              float64
 	SnapshotPath            string
 	SnapshotInterval        time.Duration
 }
@@ -121,9 +121,82 @@ func (net *Net) SaveAction(action *Action) error {
 	return nil
 }
 
-func (net *Net) Select(profileID int64, page uint8) ([]*Content, error) {
-	// TODO implement selector
-	return nil, Errors.NotImplemented
+type SelectionCacheInfo struct {
+    CurrentIndex int
+    MaximumIndex int
+}
+
+func (net *Net) Select(profileID int64, page uint8) ([]ID) {
+	// get user's profile, if any
+	profile := net.profileStore.Get(ID(profileID))
+
+	// assign topic interests
+	var interests TopicInterests
+	if profile != nil {
+		TopicInterestBy(topicInterestCriteria).Sort(profile.TopicInterests)
+	} else {
+		interests = TopicInterests{}
+	}
+
+    totalContentsToRetrieve := int(page) * int(net.config.ItemsPerPage)
+    totalContentsByInterest := int((1-net.config.NoveltyPct)*float64(totalContentsToRetrieve))
+
+    // select interesting contents
+    interestingContents := net.__selectOfInterest(interests, totalContentsByInterest)
+
+    // select popular contents (how many remaining / 2)
+    totalContentsByTrend := int((totalContentsToRetrieve - len(interestingContents)) / 2)
+    trendingContents := net.__selectOfTrending(interestingContents, totalContentsByTrend)
+
+    // fill the remainder randomly
+    totalContentsRemaining := totalContentsToRetrieve - len(interestingContents) - len(trendingContents)
+    out := append(interestingContents, trendingContents...)
+    remainingContents := net.__selectOfRemaining(out, totalContentsRemaining)
+
+    // prep the final result
+    out = append(out, remainingContents...)
+    return out
+}
+
+func (net *Net) __selectOfInterest(interests TopicInterests, howMany int) []ID {
+    // now we have sorted topic interests for this user.
+    // next step is to create a map that will store information about how many contents have been used from a topic
+    // eager loading for now
+    interestTopics := Topics{}
+    for i:=0;i<len(interests);i++ {
+        interestTopics = append(interestTopics, &interests[i].Topic)
+    }
+
+    topicContents := net.index.GetForTopics(interestTopics)
+    cache := map[Topic]*SelectionCacheInfo{}
+
+    // fill it
+    for i:=0;i<len(interests);i++ {
+        interest := interests[i]
+        cache[interest.Topic] = &SelectionCacheInfo{
+            CurrentIndex: 0,
+            MaximumIndex: len(topicContents[i]),
+        }
+    }
+
+    // now we have the following data available:
+    // 1. topics of interest for user sorted in descending order by how interesting they are
+    // 2. for each topic of interest there is an array of ID's available for that topic
+    // 3. map showing what index to choose for each topic
+
+    // go go go
+    // while there is anything interesting for user available & we haven't selected as many items as needed
+    // for len(cache)>0 &&
+
+    return nil
+}
+
+func (net *Net) __selectOfTrending(ignore []ID, howMany int) []ID {
+    return nil
+}
+
+func (net *Net) __selectOfRemaining(ignore []ID, howMany int) []ID {
+    return nil
 }
 
 func (net *Net) Describe() *NetDescription {

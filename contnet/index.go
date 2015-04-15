@@ -22,6 +22,20 @@ type IndexNodeDescription struct {
 	IDs      []ID
 }
 
+func (index *Index) GetForTopics(topics Topics) [][]ID {
+	index.RLock()
+	defer index.RUnlock()
+
+	out := [][]ID{}
+
+	for i := 0; i < len(topics); i++ {
+		out = append(out, []ID{})
+		copy(out[i], index.index[*topics[i]])
+	}
+
+	return out
+}
+
 func (index *Index) Describe() []*IndexNodeDescription {
 	index.RLock()
 	defer index.RUnlock()

@@ -27,12 +27,7 @@ func (c *App) GetNthFrontpage(profileID, pageID null.Int) revel.Result {
 		return c.ErrorBadRequest()
 	}
 
-	output, err := Net.Select(profileID.Int64, uint8(pageID.Int64))
-	if err != nil {
-		revel.ERROR.Print(err.Error())
-		return c.ErrorInternalMsg(err.Error())
-	}
-
+	output := Net.Select(profileID.Int64, uint8(pageID.Int64))
 	return c.RenderJson(output)
 }
 

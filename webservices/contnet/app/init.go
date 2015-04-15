@@ -57,7 +57,7 @@ func InitContNet() {
 		MaxContentAge:           configreader.DurationFromConfig("contnet.max.content.age"),
 		CheckContentAgeInterval: configreader.DurationFromConfig("contnet.max.content.age.check.interval"),
 		ItemsPerPage:            uint8(configreader.IntFromConfig("contnet.items.per.page")),
-		NoveltyStrength:         configreader.FloatFromConfig("contnet.novelty.strength"),
+		NoveltyPct:              configreader.FloatFromConfig("contnet.novelty.pct"),
 		SnapshotPath:            configreader.StringFromConfig("contnet.snapshot.path"),
 		SnapshotInterval:        configreader.DurationFromConfig("contnet.snapshot.interval"),
 	}

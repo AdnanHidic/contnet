@@ -1,5 +1,7 @@
 package contnet
 
+import "sort"
+
 // Interest is a floating point value that represents the level of user's interest.
 type Interest float64
 
@@ -7,7 +9,7 @@ type Interest float64
 type TopicInterest struct {
 	Topic              Topic
 	Interest           Interest
-	CumulativeInterest Interest ``
+	CumulativeInterest Interest
 }
 type TopicInterestFactory struct{}
 
@@ -16,6 +18,42 @@ type TopicInterestDescription struct {
 	Keyword2           Keyword
 	Interest           Interest
 	CumulativeInterest Interest
+}
+
+var topicInterestCriteria = func(t1, t2 *TopicInterest) bool {
+	return t1.Interest > t2.Interest
+}
+
+// function that defines ordering between trend objects
+type TopicInterestBy func(t1, t2 *TopicInterest) bool
+
+// method on the function type, sorts the argument slice according  to the function
+func (topicInterestBy TopicInterestBy) Sort(topicInterests TopicInterests) {
+	ts := &topicInterestSorter{
+		topicInterests:  topicInterests,
+		topicInterestBy: topicInterestBy,
+	}
+	sort.Sort(ts)
+}
+
+type topicInterestSorter struct {
+	topicInterests  TopicInterests
+	topicInterestBy func(t1, t2 *TopicInterest) bool
+}
+
+// Len is part of sort.Interface.
+func (ts *topicInterestSorter) Len() int {
+	return len(ts.topicInterests)
+}
+
+// Swap is part of sort.Interface.
+func (ts *topicInterestSorter) Swap(i, j int) {
+	ts.topicInterests[i], ts.topicInterests[j] = ts.topicInterests[j], ts.topicInterests[i]
+}
+
+// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
+func (ts *topicInterestSorter) Less(i, j int) bool {
+	return ts.topicInterestBy(ts.topicInterests[i], ts.topicInterests[j])
 }
 
 func (topicInterest *TopicInterest) Describe() *TopicInterestDescription {

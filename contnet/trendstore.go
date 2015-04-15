@@ -166,15 +166,15 @@ func (store *TrendStore) Unregister(topics Topics, popularity float64) {
 			trend.Popularity -= popularity
 			// remove if popularity becomes too low
 			if trend.Popularity <= 0 {
-                // delete from cache
-                delete(store.cache, *topics[i])
-                // delete from trends
-                for j:=0;j<len(store.trends);j++ {
-                    if store.trends[j].Topic == *topics[i] {
-                        store.trends = append(store.trends[:j], store.trends[j+1:]...)
-                        break
-                    }
-                }
+				// delete from cache
+				delete(store.cache, *topics[i])
+				// delete from trends
+				for j := 0; j < len(store.trends); j++ {
+					if store.trends[j].Topic == *topics[i] {
+						store.trends = append(store.trends[:j], store.trends[j+1:]...)
+						break
+					}
+				}
 			}
 		}
 	}
