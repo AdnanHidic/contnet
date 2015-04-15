@@ -16,13 +16,13 @@ type NetConfig struct {
 	SnapshotInterval        time.Duration
 }
 
-// TODO: implement trend store
 type Net struct {
 	sync.RWMutex
 	config       *NetConfig
 	bus          *EventBus.EventBus
 	contentStore *ContentStore
 	profileStore *ProfileStore
+	trendStore   *TrendStore
 	index        *Index
 }
 type NetFactory struct{}
@@ -35,10 +35,11 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		bus:          bus,
 		contentStore: contentStore,
 		profileStore: Object.ProfileStore.New(),
+		trendStore:   Object.TrendStore.New(bus),
 		index:        Object.Index.New(config, bus, contentStore),
 	}
 	if err := net.Restore(); err != nil {
-		log.Print("Failed to restore net object, proceeding empty..")
+		log.Print("Failed to restore net object, proceeding empty.")
 	}
 	go net.__snapshot()
 	go net.index.__refresh()
@@ -66,7 +67,9 @@ func (net *Net) Snapshot() error {
 		return err
 	}
 
-	// TODO: snapshot trends
+	if err := net.trendStore.Snapshot(net.config.SnapshotPath, "trends"); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -84,7 +87,9 @@ func (net *Net) Restore() error {
 		return err
 	}
 
-	// TODO: restore trends
+	if err := net.trendStore.RestoreFromSnapshot(net.config.SnapshotPath, "trends"); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -126,5 +131,6 @@ func (net *Net) Describe() *NetDescription {
 		Contents: net.contentStore.Describe(),
 		Index:    net.index.Describe(),
 		Profiles: net.profileStore.Describe(),
+		Trends:   net.trendStore.Describe(),
 	}
 }
