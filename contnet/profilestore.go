@@ -14,17 +14,17 @@ func (factory ProfileStoreFactory) New() *ProfileStore {
 	}
 }
 
-func (store *ProfileStore) Describe() []*Profile {
-    store.RLock()
-    defer store.RUnlock()
+func (store *ProfileStore) Describe() []*ProfileDescription {
+	store.RLock()
+	defer store.RUnlock()
 
-    out := []*Profile{}
+	out := []*ProfileDescription{}
 
-    for _, profile := range store.profiles {
-        out = append(out, profile.Clone())
-    }
+	for _, profile := range store.profiles {
+		out = append(out, profile.Describe())
+	}
 
-    return out
+	return out
 }
 
 func (store *ProfileStore) Snapshot(path, filename string) error {
@@ -61,8 +61,8 @@ func (store *ProfileStore) Delete(id ID) {
 }
 
 func (store *ProfileStore) Save(action *Action) {
-    store.Lock()
-    defer store.Unlock()
+	store.Lock()
+	defer store.Unlock()
 
 	var (
 		profile       *Profile
@@ -73,7 +73,7 @@ func (store *ProfileStore) Save(action *Action) {
 	// if profile does not exist, create a new one and save it
 	if !profileExists {
 		profile = Object.Profile.New(action.ProfileID, TopicInterests{})
-        store.profiles[profile.ID] = profile
+		store.profiles[profile.ID] = profile
 	}
 
 	// update profile with this action

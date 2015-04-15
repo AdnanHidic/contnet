@@ -41,7 +41,7 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		log.Print("Failed to restore net object, proceeding empty..")
 	}
 	go net.__snapshot()
-    go net.index.__refresh()
+	go net.index.__refresh()
 
 	return net
 }
@@ -125,6 +125,6 @@ func (net *Net) Describe() *NetDescription {
 	return &NetDescription{
 		Contents: net.contentStore.Describe(),
 		Index:    net.index.Describe(),
-        Profiles: net.profileStore.Describe(),
+		Profiles: net.profileStore.Describe(),
 	}
 }

@@ -36,6 +36,14 @@ func (factory ActionArgumentFactory) New(name string, argType ActionArgumentType
 	}
 }
 
+func (arg *ActionArgument) GetValueInteger() int {
+	if arg.Type == ActionArgumentTypes.Integer {
+		return arg.Value.(int)
+	} else {
+		return 0
+	}
+}
+
 func (arg *ActionArgument) Clone() *ActionArgument {
 	return &ActionArgument{
 		Name:  arg.Name,
@@ -54,4 +62,13 @@ func (args ActionArguments) Clone() ActionArguments {
 	}
 
 	return out
+}
+
+func (args ActionArguments) GetArgumentByName(name string) *ActionArgument {
+	for i := 0; i < len(args); i++ {
+		if args[i].Name == name {
+			return args[i].Clone()
+		}
+	}
+	return nil
 }
