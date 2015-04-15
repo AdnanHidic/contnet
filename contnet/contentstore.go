@@ -15,6 +15,37 @@ type ContentStore struct {
 }
 type ContentStoreFactory struct{}
 
+// I know this relies on the fact that range order is UNSPECIFIED and thus behaves quasi-randomly..
+func (store *ContentStore) GetAnyContentID() ID {
+	store.RLock()
+	defer store.RUnlock()
+
+	for k, _ := range store.contents {
+		return k
+	}
+	return 0
+}
+
+func (store *ContentStore) GetAllContentIDs() []ID {
+	store.RLock()
+	defer store.RUnlock()
+
+	out := []ID{}
+
+	for k, _ := range store.contents {
+		out = append(out, k)
+	}
+
+	return out
+}
+
+func (store *ContentStore) Count() int {
+	store.RLock()
+	defer store.RUnlock()
+
+	return len(store.contents)
+}
+
 func (store *ContentStore) Describe() []*Content {
 	store.RLock()
 	defer store.RUnlock()

@@ -281,11 +281,43 @@ func __recalculateCumulativeProbabilities(topicInterests TopicInterests) []float
 }
 
 func (net *Net) __selectOfTrending(ignore []ID, howMany int) []ID {
+	// select top 10 trending topics
+	trendingTopics := net.trendStore.GetTopN(10)
+
+	// get content IDs for trending topics
+	contentIDs := net.index.GetForTopics(trendingTopics)
+
+	// cache indices foreach contentID
+	cache := map[Topic]*SelectionCacheInfo{}
+	// filling in the cache
+	for i := 0; i < len(trendingTopics); i++ {
+		cache[*trendingTopics[i]] = &SelectionCacheInfo{
+			CurrentIndex: 0,
+			MaximumIndex: len(contentIDs[i]) - 1,
+		}
+	}
+
 	return nil
 }
 
 func (net *Net) __selectOfRemaining(ignore []ID, howMany int) []ID {
-	return nil
+	// if we are asking for more content items then there are available in content store
+	if howMany >= (net.contentStore.Count() - len(ignore)) {
+		return net.contentStore.GetAllContentIDs()
+	}
+
+	// otherwise, draw random elements until howMany is satisifed. ignore duplicates of course.
+	out := []ID{}
+
+	for len(out) < howMany {
+		randomID := net.contentStore.GetAnyContentID()
+		if !__idsContainID(out, randomID) && !__idsContainID(ignore, randomID) {
+			out = append(out, randomID)
+		}
+	}
+
+	return out
+
 }
 
 func (net *Net) Describe() *NetDescription {
