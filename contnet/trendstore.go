@@ -72,7 +72,9 @@ type TrendStoreFactory struct{}
 
 func (factory TrendStoreFactory) New(bus *EventBus.EventBus) *TrendStore {
 	store := &TrendStore{
-		bus: bus,
+		bus:    bus,
+		cache:  map[Topic]*Trend{},
+		trends: []*Trend{},
 	}
 
 	bus.SubscribeAsync("topics:mentioned", store.Register, false)
@@ -162,6 +164,18 @@ func (store *TrendStore) Unregister(topics Topics, popularity float64) {
 		// check if topic is cached. If cached, decrease popularity
 		if trend, exists := store.cache[*topics[i]]; exists {
 			trend.Popularity -= popularity
+			// remove if popularity becomes too low
+			if trend.Popularity <= 0 {
+                // delete from cache
+                delete(store.cache, *topics[i])
+                // delete from trends
+                for j:=0;j<len(store.trends);j++ {
+                    if store.trends[j].Topic == *topics[i] {
+                        store.trends = append(store.trends[:j], store.trends[j+1:]...)
+                        break
+                    }
+                }
+			}
 		}
 	}
 
