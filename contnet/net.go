@@ -211,10 +211,13 @@ func (net *Net) __selectOfInterest(interests TopicInterests, howMany int) []ID {
 		// select its best content (first index available)
 		indexToSelect := cache[topic].CurrentIndex
 
-		selectedID := topicContents[i][indexToSelect]
+		// current index can be ahead of the max index in some special cases
+		if indexToSelect <= cache[topic].MaximumIndex {
+			selectedID := topicContents[i][indexToSelect]
 
-		if !__idsContainID(out, selectedID) {
-			out = append(out, selectedID)
+			if !__idsContainID(out, selectedID) {
+				out = append(out, selectedID)
+			}
 		}
 
 		// advance current index in cache
