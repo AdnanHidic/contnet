@@ -22,12 +22,12 @@ func (c *App) NotFound() revel.Result {
 	return c.Error(base.ERROR_NO_ACTION, http.StatusNotFound)
 }
 
-func (c *App) GetNthFrontpage(profileID, pageID null.Int) revel.Result {
-	if !profileID.Valid || !pageID.Valid {
+func (c *App) GetNthFrontpage(profileID, page null.Int) revel.Result {
+	if !profileID.Valid || !page.Valid {
 		return c.ErrorBadRequest()
 	}
 
-	output := Net.Select(profileID.Int64, uint8(pageID.Int64))
+	output := Net.Select(profileID.Int64, uint8(page.Int64))
 	return c.RenderJson(output)
 }
 
