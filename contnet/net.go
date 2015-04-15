@@ -41,6 +41,7 @@ func (factory NetFactory) New(config *NetConfig) *Net {
 		log.Print("Failed to restore net object, proceeding empty..")
 	}
 	go net.__snapshot()
+    go net.index.__refresh()
 
 	return net
 }

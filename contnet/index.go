@@ -3,9 +3,10 @@ package contnet
 import (
 	"github.com/asaskevich/EventBus"
 	"sync"
+    "log"
+    "time"
 )
 
-// TODO: index should periodically re-sort content IDs for topic
 type Index struct {
 	sync.RWMutex
 	config   *NetConfig
@@ -71,6 +72,26 @@ func (index *Index) RestoreFromSnapshot(path, filename string) error {
 	return err
 }
 
+func (index *Index) __refresh() {
+    for {
+        index.Lock()
+        log.Println("GLOBAL PAUSE: refreshing index ordering...")
+
+        // for every entry
+        for topic, mentions := range index.index {
+            // get all contents
+            contents := index.contents.GetMany(mentions)
+            // sort all contents plus the new content & sort (best first)
+            ContentBy(contentAgeCriteria).Sort(contents)
+            // project slice to extract IDs
+            index.index[topic] = __extractIDsFromContents(contents)
+        }
+
+        log.Println("GLOBAL UNPAUSE: refreshing index ordering finished.")
+        index.Unlock()
+        time.Sleep(index.config.CheckContentAgeInterval)
+    }
+}
 // Index previously unindexed content.
 func (index *Index) Index(content *Content) {
 	// get topics for this content
