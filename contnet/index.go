@@ -30,7 +30,10 @@ func (index *Index) GetForTopics(topics Topics) [][]ID {
 
 	for i := 0; i < len(topics); i++ {
 		out = append(out, []ID{})
-		copy(out[i], index.index[*topics[i]])
+
+		if ids, exists := index.index[*topics[i]]; exists {
+			copy(out[i], ids)
+		}
 	}
 
 	return out

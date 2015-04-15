@@ -239,12 +239,12 @@ func (net *Net) __selectOfInterest(interests TopicInterests, howMany int) []ID {
 }
 
 func __idsContainID(ids []ID, id ID) bool {
-    for i:=0;i<len(ids);i++ {
-        if ids[i] == id {
-            return true
-        }
-    }
-    return false
+	for i := 0; i < len(ids); i++ {
+		if ids[i] == id {
+			return true
+		}
+	}
+	return false
 }
 
 func __drawRandomTopicInterest(topicInterests TopicInterests, cumulativeProbabilities []float64) (Topic, int) {
