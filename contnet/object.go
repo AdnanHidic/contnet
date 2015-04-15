@@ -12,6 +12,7 @@ var Object = struct {
 	Net            NetFactory
 	Action         ActionFactory
 	ActionArgument ActionArgumentFactory
+	TrendStore     TrendStoreFactory
 }{
 	Topic:          TopicFactory{},
 	Content:        ContentFactory{},
@@ -23,4 +24,5 @@ var Object = struct {
 	Net:            NetFactory{},
 	Action:         ActionFactory{},
 	ActionArgument: ActionArgumentFactory{},
+	TrendStore:     TrendStoreFactory{},
 }

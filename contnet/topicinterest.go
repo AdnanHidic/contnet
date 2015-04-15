@@ -64,7 +64,7 @@ func (topicInterests TopicInterests) Describe() []*TopicInterestDescription {
 
 const (
 	__TRIM_INTEREST_LOWER_BOUND = 0.0001 // 0.001% interested
-    __FAIRNESS_CONSTANT = 0.0015
+	__FAIRNESS_CONSTANT         = 0.0015
 )
 
 // value - between -1.0 and 1.0
@@ -93,8 +93,8 @@ func (topicInterests TopicInterests) Apply(topics Topics, value float64) TopicIn
 		}
 		// topic not found, create new interest if interest is positive, otherwise ignore it
 		if !found && value > 0 {
-            // apply fairness factor to give newer entries a better chance for survival
-            fair := value + __FAIRNESS_CONSTANT
+			// apply fairness factor to give newer entries a better chance for survival
+			fair := value + __FAIRNESS_CONSTANT
 			interest := Object.TopicInterest.New(*topics[i], Interest(fair))
 			topicInterests = append(topicInterests, interest)
 

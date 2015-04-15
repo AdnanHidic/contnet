@@ -116,7 +116,7 @@ func (index *Index) Index(content *Content) {
 		index.Unlock()
 	}
 	// notify any listener that these topics have been mentioned.
-	index.bus.Publish("topics:mentioned", topics)
+	index.bus.Publish("topics:mentioned", topics, content.Popularity)
 }
 
 func (index *Index) Reindex(old, new *Content) {
@@ -144,7 +144,7 @@ func (index *Index) Remove(content *Content) {
 		index.Unlock()
 	}
 	// notify anly listener that these topics have been unmentioned
-	index.bus.Publish("topics:unmentioned", topics)
+	index.bus.Publish("topics:unmentioned", topics, content.Popularity)
 }
 
 func (index *Index) addMention(mentions []ID, content *Content) []ID {
