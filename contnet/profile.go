@@ -1,6 +1,8 @@
 package contnet
 
-import "math"
+import (
+	"math"
+)
 
 // Profile contains information about topic interests for specified content consumer.
 type Profile struct {
@@ -62,7 +64,7 @@ func (profile *Profile) __saveReadAction(action *Action) {
 		value = 1.0
 	}
 
-	profile.TopicInterests.Apply(topics, value)
+	profile.TopicInterests = profile.TopicInterests.Apply(topics, value)
 }
 
 func (profile *Profile) __saveUpvoteAction(action *Action) {

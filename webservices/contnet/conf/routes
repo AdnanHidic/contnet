@@ -9,7 +9,7 @@ OPTIONS /*                                      Cors.Handle
 GET     /frontpage                              App.GetNthFrontpage
 GET     /description                            App.GetDescription
 POST    /content                                App.PostContent
-POST    /content/action                         App.PostContentAction
+POST    /action                                 App.PostContentAction
 
 
 # Catch all

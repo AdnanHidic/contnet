@@ -67,7 +67,7 @@ const (
 )
 
 // value - between -1.0 and 1.0
-func (topicInterests TopicInterests) Apply(topics Topics, value float64) {
+func (topicInterests TopicInterests) Apply(topics Topics, value float64) TopicInterests {
 	// foreach topic, add value to respective cumulative interest.
 	// if no topic is registered, register it.
 	// if cumulative interest falls below 0, remove interest
@@ -101,6 +101,8 @@ func (topicInterests TopicInterests) Apply(topics Topics, value float64) {
 
 	// now recalculate base interests (proportion)
 	for i := 0; i < len(topicInterests); i++ {
-		topicInterests[i].Interest /= interestSum
+		topicInterests[i].Interest = topicInterests[i].CumulativeInterest / interestSum
 	}
+
+	return topicInterests
 }
