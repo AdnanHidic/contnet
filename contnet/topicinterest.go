@@ -28,10 +28,10 @@ func (topicInterest *TopicInterest) Describe() *TopicInterestDescription {
 	}
 }
 
-func (factory *TopicInterestFactory) New(topic Topic, interest Interest) *TopicInterest {
+func (factory *TopicInterestFactory) New(topic Topic, cumulativeInterest Interest) *TopicInterest {
 	return &TopicInterest{
-		Topic:    topic,
-		Interest: interest,
+		Topic:              topic,
+		CumulativeInterest: cumulativeInterest,
 	}
 }
 
@@ -62,7 +62,45 @@ func (topicInterests TopicInterests) Describe() []*TopicInterestDescription {
 	return out
 }
 
+const (
+	__TRIM_INTEREST_LOWER_BOUND = 0.0001 // 0.001% interested
+)
+
 // value - between -1.0 and 1.0
 func (topicInterests TopicInterests) Apply(topics Topics, value float64) {
+	// foreach topic, add value to respective cumulative interest.
+	// if no topic is registered, register it.
+	// if cumulative interest falls below 0, remove interest
+	interestSum := Interest(0.0)
 
+	for i := 0; i < len(topics); i++ {
+		found := false
+		for j := 0; j < len(topicInterests); j++ {
+			if topicInterests[j].Topic == *topics[i] {
+				found = true
+				topicInterests[j].CumulativeInterest += Interest(value)
+				// if interest has become negative, remove interest (also if base interest is too low)
+				if topicInterests[j].CumulativeInterest < 0 || topicInterests[j].Interest < __TRIM_INTEREST_LOWER_BOUND {
+					topicInterests = append(topicInterests[:j], topicInterests[j+1:]...)
+					break
+				}
+
+				interestSum += topicInterests[j].CumulativeInterest
+
+				break
+			}
+		}
+		// topic not found, create new interest
+		if !found {
+			interest := Object.TopicInterest.New(*topics[i], Interest(value))
+			topicInterests = append(topicInterests, interest)
+
+			interestSum += Interest(value)
+		}
+	}
+
+	// now recalculate base interests (proportion)
+	for i := 0; i < len(topicInterests); i++ {
+		topicInterests[i].Interest /= interestSum
+	}
 }
