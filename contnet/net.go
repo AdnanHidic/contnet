@@ -284,6 +284,11 @@ func (net *Net) __selectOfTrending(ignore []ID, howMany int) []ID {
 	// select top 10 trending topics
 	trendingTopics := net.trendStore.GetTopN(10)
 
+	// nothing trending, bail early
+	if len(trendingTopics) == 0 {
+		return []ID{}
+	}
+
 	// get content IDs for trending topics
 	contentIDs := net.index.GetForTopics(trendingTopics)
 
@@ -297,7 +302,44 @@ func (net *Net) __selectOfTrending(ignore []ID, howMany int) []ID {
 		}
 	}
 
-	return nil
+	nextTrendInd := 0
+	out := []ID{}
+	for len(cache) > 0 && len(out) < howMany {
+        trendingTopic := *trendingTopics[nextTrendInd]
+
+        // select its best content (first index available)
+        indexToSelect := cache[trendingTopic].CurrentIndex
+
+        // current index can be ahead of the max index in some special cases
+        if indexToSelect <= cache[trendingTopic].MaximumIndex {
+            selectedID := contentIDs[nextTrendInd][indexToSelect]
+
+            if !__idsContainID(out, selectedID) && !__idsContainID(ignore, selectedID) {
+                out = append(out, selectedID)
+            }
+        }
+
+        // advance current index in cache
+        cache[trendingTopic].CurrentIndex++
+
+        // if we overshot the maximum index for this topic, remove it
+        if cache[trendingTopic].CurrentIndex > cache[trendingTopic].MaximumIndex {
+            // remove from cache
+            delete(cache, trendingTopic)
+            // remove from trending topics
+            trendingTopics = append(trendingTopics[:nextTrendInd], trendingTopics[nextTrendInd+1:]...)
+            // go back one position
+            nextTrendInd--
+        }
+
+        // reset the counter
+		nextTrendInd++
+		if nextTrendInd == len(trendingTopics) {
+			nextTrendInd = 0
+		}
+	}
+
+	return out
 }
 
 func (net *Net) __selectOfRemaining(ignore []ID, howMany int) []ID {
