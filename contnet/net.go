@@ -110,7 +110,7 @@ func (net *Net) SaveAction(action *Action) error {
 	action.Content = relatedContent
 
 	// save action to profile
-	net.profileStore.SaveAction(action)
+	net.profileStore.Save(action)
 
 	// everything is okay
 	return nil
@@ -125,5 +125,6 @@ func (net *Net) Describe() *NetDescription {
 	return &NetDescription{
 		Contents: net.contentStore.Describe(),
 		Index:    net.index.Describe(),
+        Profiles: net.profileStore.Describe(),
 	}
 }
