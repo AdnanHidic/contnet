@@ -74,7 +74,11 @@ func (factory *TopicInterestFactory) New(topic Topic, cumulativeInterest Interes
 }
 
 func (topicInterest *TopicInterest) Clone() *TopicInterest {
-	return Object.TopicInterest.New(topicInterest.Topic, topicInterest.Interest)
+	return &TopicInterest{
+		Topic:              topicInterest.Topic,
+		CumulativeInterest: topicInterest.CumulativeInterest,
+		Interest:           topicInterest.Interest,
+	}
 }
 
 // Alias for a slice of pointers to topic interests.
