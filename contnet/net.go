@@ -210,7 +210,13 @@ func (net *Net) __selectOfInterest(interests TopicInterests, howMany int) []ID {
 
 		// select its best content (first index available)
 		indexToSelect := cache[topic].CurrentIndex
-		out = append(out, topicContents[i][indexToSelect])
+
+		selectedID := topicContents[i][indexToSelect]
+
+		if !__idsContainID(out, selectedID) {
+			out = append(out, selectedID)
+		}
+
 		// advance current index in cache
 		cache[topic].CurrentIndex++
 
@@ -230,6 +236,15 @@ func (net *Net) __selectOfInterest(interests TopicInterests, howMany int) []ID {
 	}
 
 	return out
+}
+
+func __idsContainID(ids []ID, id ID) bool {
+    for i:=0;i<len(ids);i++ {
+        if ids[i] == id {
+            return true
+        }
+    }
+    return false
 }
 
 func __drawRandomTopicInterest(topicInterests TopicInterests, cumulativeProbabilities []float64) (Topic, int) {
