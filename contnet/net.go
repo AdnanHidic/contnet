@@ -139,6 +139,7 @@ func (net *Net) Select(profileID int64, page uint8) []ID {
 	var interests TopicInterests
 	if profile != nil {
 		TopicInterestBy(topicInterestCriteria).Sort(profile.TopicInterests)
+		interests = profile.TopicInterests
 	} else {
 		interests = TopicInterests{}
 	}
@@ -148,15 +149,18 @@ func (net *Net) Select(profileID int64, page uint8) []ID {
 
 	// select interesting contents
 	interestingContents := net.__selectOfInterest(interests, totalContentsByInterest)
+	//log.Println("Interesting: ", len(interestingContents))
 
 	// select popular contents (how many remaining / 2)
 	totalContentsByTrend := int((totalContentsToRetrieve - len(interestingContents)) / 2)
 	trendingContents := net.__selectOfTrending(interestingContents, totalContentsByTrend)
+	//log.Println("Trending: ", len(trendingContents))
 
 	// fill the remainder randomly
 	totalContentsRemaining := totalContentsToRetrieve - len(interestingContents) - len(trendingContents)
 	out := append(interestingContents, trendingContents...)
 	remainingContents := net.__selectOfRemaining(out, totalContentsRemaining)
+	//log.Println("Remaining: ", len(remainingContents))
 
 	// prep the final result
 	out = append(out, remainingContents...)
@@ -184,6 +188,7 @@ func (net *Net) __selectOfInterest(interests TopicInterests, howMany int) []ID {
 
 	// use the previously created topics slice for querying the index
 	topicContents := net.index.GetForTopics(interestTopics)
+
 	// now we have all content IDs for all topics interesting to this user
 	// to control where we're at, we will create temporary cache that will mark extraction location for each topic
 	cache := map[Topic]*SelectionCacheInfo{}
@@ -214,7 +219,6 @@ func (net *Net) __selectOfInterest(interests TopicInterests, howMany int) []ID {
 		// current index can be ahead of the max index in some special cases
 		if indexToSelect <= cache[topic].MaximumIndex {
 			selectedID := topicContents[i][indexToSelect]
-
 			if !__idsContainID(out, selectedID) {
 				out = append(out, selectedID)
 			}
@@ -258,7 +262,7 @@ func __drawRandomTopicInterest(topicInterests TopicInterests, cumulativeProbabil
 		}
 	}
 	// this is guaranteed not to happen
-	return topicInterests[len(topicInterests)-1].Topic, len(topicInterests)
+	return topicInterests[len(topicInterests)-1].Topic, len(topicInterests) - 1
 }
 
 func __recalculateCumulativeProbabilities(topicInterests TopicInterests) []float64 {
@@ -305,34 +309,34 @@ func (net *Net) __selectOfTrending(ignore []ID, howMany int) []ID {
 	nextTrendInd := 0
 	out := []ID{}
 	for len(cache) > 0 && len(out) < howMany {
-        trendingTopic := *trendingTopics[nextTrendInd]
+		trendingTopic := *trendingTopics[nextTrendInd]
 
-        // select its best content (first index available)
-        indexToSelect := cache[trendingTopic].CurrentIndex
+		// select its best content (first index available)
+		indexToSelect := cache[trendingTopic].CurrentIndex
 
-        // current index can be ahead of the max index in some special cases
-        if indexToSelect <= cache[trendingTopic].MaximumIndex {
-            selectedID := contentIDs[nextTrendInd][indexToSelect]
+		// current index can be ahead of the max index in some special cases
+		if indexToSelect <= cache[trendingTopic].MaximumIndex {
+			selectedID := contentIDs[nextTrendInd][indexToSelect]
 
-            if !__idsContainID(out, selectedID) && !__idsContainID(ignore, selectedID) {
-                out = append(out, selectedID)
-            }
-        }
+			if !__idsContainID(out, selectedID) && !__idsContainID(ignore, selectedID) {
+				out = append(out, selectedID)
+			}
+		}
 
-        // advance current index in cache
-        cache[trendingTopic].CurrentIndex++
+		// advance current index in cache
+		cache[trendingTopic].CurrentIndex++
 
-        // if we overshot the maximum index for this topic, remove it
-        if cache[trendingTopic].CurrentIndex > cache[trendingTopic].MaximumIndex {
-            // remove from cache
-            delete(cache, trendingTopic)
-            // remove from trending topics
-            trendingTopics = append(trendingTopics[:nextTrendInd], trendingTopics[nextTrendInd+1:]...)
-            // go back one position
-            nextTrendInd--
-        }
+		// if we overshot the maximum index for this topic, remove it
+		if cache[trendingTopic].CurrentIndex > cache[trendingTopic].MaximumIndex {
+			// remove from cache
+			delete(cache, trendingTopic)
+			// remove from trending topics
+			trendingTopics = append(trendingTopics[:nextTrendInd], trendingTopics[nextTrendInd+1:]...)
+			// go back one position
+			nextTrendInd--
+		}
 
-        // reset the counter
+		// reset the counter
 		nextTrendInd++
 		if nextTrendInd == len(trendingTopics) {
 			nextTrendInd = 0
@@ -345,7 +349,16 @@ func (net *Net) __selectOfTrending(ignore []ID, howMany int) []ID {
 func (net *Net) __selectOfRemaining(ignore []ID, howMany int) []ID {
 	// if we are asking for more content items then there are available in content store
 	if howMany >= (net.contentStore.Count() - len(ignore)) {
-		return net.contentStore.GetAllContentIDs()
+		ids := net.contentStore.GetAllContentIDs()
+		// filter out ignored ones
+		for i := 0; i < len(ids); i++ {
+			if __idsContainID(ignore, ids[i]) {
+				ids = append(ids[:i], ids[i+1:]...)
+				i--
+			}
+		}
+		return ids
+
 	}
 
 	// otherwise, draw random elements until howMany is satisifed. ignore duplicates of course.
