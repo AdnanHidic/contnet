@@ -119,7 +119,13 @@ func (store *TrendStore) GetTopN(n int) Topics {
 	store.RLock()
 	defer store.RUnlock()
 
-	topNTrends := store.trends[0:n]
+	bound := n
+
+	if n > len(store.trends) {
+		bound = len(store.trends)
+	}
+
+	topNTrends := store.trends[0:bound]
 
 	out := Topics{}
 
