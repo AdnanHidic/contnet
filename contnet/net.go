@@ -332,6 +332,9 @@ func (net *Net) __selectOfTrending(ignore []ID, howMany int) []ID {
 			delete(cache, trendingTopic)
 			// remove from trending topics
 			trendingTopics = append(trendingTopics[:nextTrendInd], trendingTopics[nextTrendInd+1:]...)
+			// remove from content IDs
+			contentIDs = append(contentIDs[:nextTrendInd], contentIDs[nextTrendInd+1:]...)
+
 			// go back one position
 			nextTrendInd--
 		}
