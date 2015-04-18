@@ -18,6 +18,12 @@ type ContentKeywordExtractionInput struct {
 }
 
 func (keywordExtractor keywordExtractor) Extract(input *ContentKeywordExtractionInput, maxKeywords int) []string {
+	input.Title = strings.ToLower(input.Title)
+	input.Description = strings.ToLower(input.Description)
+	for i := 0; i < len(input.Comments); i++ {
+		input.Comments[i] = strings.ToLower(input.Comments[i])
+	}
+
 	joinedComments := strings.Join(input.Comments, " ")
 
 	// get histograms for every element of the input
