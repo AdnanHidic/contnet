@@ -38,7 +38,7 @@ func (factory ActionArgumentFactory) New(name string, argType ActionArgumentType
 
 func (arg *ActionArgument) GetValueInteger() int {
 	if arg.Type == ActionArgumentTypes.Integer {
-		return int(arg.Value.(float64))
+		return int(arg.Value.(int))
 	} else {
 		return 0
 	}
